@@ -7,10 +7,7 @@ type HeaderLinkProp = {
 };
 function HeaderLink({ text, href }: HeaderLinkProp) {
   return (
-    <Link
-      className="inline-flex items-center text-gray-800 p-2 text-sm font-medium rounded-lg hover:text-orange-500 focus:outline-none focus:text-orange-500 dark:text-gray-200 dark:hover:text-gray-400 dark:focus:text-gray-400"
-      href={href}
-    >
+    <Link className="btn btn-sm" href={href}>
       {text}
     </Link>
   );
