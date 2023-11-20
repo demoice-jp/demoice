@@ -25,3 +25,8 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.btn {
+  @apply rounded;
+  @apply font-normal;
+}
