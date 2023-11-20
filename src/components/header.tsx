@@ -21,13 +21,13 @@ export default function Header() {
         aria-label="Global"
       >
         <div className="flex items-center gap-x-2 md:gap-x-3">
-          <Link className="flex-none rounded-md dark:focus:outline-none" href="/">
+          <Link className="flex-none dark:focus:outline-none" href="/">
             <Image src="/demoice.svg" alt="Demoice Logo" width={132} height={30} />
           </Link>
         </div>
         <div className="flex items-center gap-x-3">
-          <HeaderLink text="ログイン" href="/login" />
-          <HeaderLink text="会員登録" href="/signup" />
+          <HeaderLink text="ログイン" href="/auth/login" />
+          <HeaderLink text="会員登録" href="/auth/signup" />
         </div>
       </nav>
     </header>

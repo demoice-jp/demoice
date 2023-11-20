@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={notoSansJP.className}>
+      <body className={`${notoSansJP.className} min-h-screen bg-gray-50 dark:bg-gray-900`}>
         <Header />
         {children}
       </body>
