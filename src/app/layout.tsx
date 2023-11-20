@@ -1,9 +1,11 @@
-import { Inter } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import Header from "@/components/header";
 import type { Metadata } from "next";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Demoice",
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={notoSansJP.className}>
         <Header />
         {children}
       </body>
