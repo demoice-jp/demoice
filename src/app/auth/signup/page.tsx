@@ -18,8 +18,8 @@ export default function Page() {
       </nav>
       <main className="w-full h-full">
         <section className="w-full h-[calc(100vh_-_95px)]">
-          <div className="flex flex-col h-full items-center justify-center px-6 py-8 mx-auto lg:py-0">
-            <div className="w-full bg-white rounded-lg shadow dark:border -mt-9 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex flex-col h-full items-center justify-center px-6 py-8 mx-auto lg:py-0 sm:max-w-md">
+            <div className="w-full bg-white rounded-lg shadow dark:border -mt-9 xl:p-0 dark:bg-gray-800 dark:border-gray-700">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                 <h1>会員登録</h1>
                 <div className="flex flex-col justify-center items-center mx-10">
@@ -37,6 +37,10 @@ export default function Page() {
                 </div>
               </div>
             </div>
+            <div className="divider" />
+            <Link className="link link-hover" href="/auth/signin">
+              ログインはこちら
+            </Link>
           </div>
         </section>
       </main>

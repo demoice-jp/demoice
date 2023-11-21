@@ -26,7 +26,7 @@ export default function Header() {
           </Link>
         </div>
         <div className="flex items-center gap-x-3">
-          <HeaderLink text="ログイン" href="/auth/login" />
+          <HeaderLink text="ログイン" href="/auth/signin" />
           <HeaderLink text="会員登録" href="/auth/signup" />
         </div>
       </nav>
