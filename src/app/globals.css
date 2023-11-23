@@ -30,3 +30,17 @@ body {
   @apply rounded;
   @apply font-normal;
 }
+
+.card {
+  @apply shadow dark:border dark:bg-gray-800 dark:border-gray-700;
+}
+
+@layer utilities {
+  .flex-col-center {
+    @apply flex w-full items-center flex-col;
+  }
+
+  .fixed-full-with-headers {
+    @apply w-full h-[calc(100vh_-_95px)];
+  }
+}
