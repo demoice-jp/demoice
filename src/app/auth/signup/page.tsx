@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import LineLogo from "@/asset/line_64.png";
+import { signIn } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
 
 export default function Page() {
@@ -13,7 +14,15 @@ export default function Page() {
             <div className="w-full bg-white rounded-lg shadow dark:border -mt-9 xl:p-0 dark:bg-gray-800 dark:border-gray-700">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                 <div className="flex flex-col justify-center items-center mx-10">
-                  <form className="w-full">
+                  <form
+                    className="w-full"
+                    action={async () => {
+                      "use server";
+                      await signIn("line", {
+                        redirectTo: "/account/register",
+                      });
+                    }}
+                  >
                     <button
                       type="submit"
                       className="w-full flex text-white bg-[#06C755] rounded active:[&>div]:bg-black active:[&>div]:bg-opacity-30"
