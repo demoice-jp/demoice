@@ -27,12 +27,34 @@ body {
 }
 
 .btn {
-  @apply rounded;
-  @apply font-normal;
+  @apply rounded font-normal min-h-[2.5rem] h-10;
+}
+
+.input {
+  @apply h-10 rounded;
+}
+
+.select {
+  @apply h-10 min-h-[2.5rem] rounded;
 }
 
 .card {
-  @apply shadow dark:border dark:bg-gray-800 dark:border-gray-700;
+  @apply shadow dark:border bg-white dark:bg-gray-800 dark:border-gray-700;
+}
+
+@layer base {
+  h2 {
+    @apply text-xl font-bold text-gray-800 dark:text-gray-200;
+  }
+}
+
+@layer components {
+  .radio-label {
+    @apply btn flex bg-base-100 border border-base-content/20;
+    &:hover {
+      @apply bg-base-content/20 border-base-content/20;
+    }
+  }
 }
 
 @layer utilities {
@@ -42,5 +64,9 @@ body {
 
   .fixed-full-with-headers {
     @apply w-full h-[calc(100vh_-_95px)];
+  }
+
+  .light-text {
+    @apply text-sm text-gray-600 dark:text-gray-400;
   }
 }
