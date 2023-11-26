@@ -113,6 +113,11 @@ export default function CreateAccountForm() {
             <FormError id="prefecture-error" messages={state.errors?.prefecture} />
           </div>
         </div>
+        {state.message && (
+          <div className="w-full flex justify-end">
+            <FormError messages={[state.message]} />
+          </div>
+        )}
 
         <div className="mt-5 flex justify-end">
           <SubmitButton>登録</SubmitButton>

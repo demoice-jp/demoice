@@ -1,9 +1,25 @@
 import Link from "next/link";
 import { signIn } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
+import FormError from "@/components/widget/form-error";
 import LineButton from "@/components/widget/line-button";
 
-export default function Page() {
+function errorCodeToMessage(code: string) {
+  switch (code) {
+    case "DUPLICATED_ACCOUNT":
+      return "このアカウントは既に利用されています。";
+    default:
+      return "予期しないエラーが発生しました。";
+  }
+}
+
+export default function Page({
+  searchParams,
+}: {
+  searchParams?: {
+    error?: string;
+  };
+}) {
   return (
     <div className="flex-col-center">
       <Breadcrumbs currentPage="会員登録" />
@@ -28,6 +44,11 @@ export default function Page() {
                 />
               </form>
             </div>
+            {searchParams?.error && (
+              <div className="w-full flex justify-center">
+                <FormError messages={[errorCodeToMessage(searchParams.error)]} />
+              </div>
+            )}
           </div>
           <div className="divider" />
           <Link className="link link-hover" href="/auth/signin">

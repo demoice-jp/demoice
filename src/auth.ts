@@ -30,8 +30,6 @@ export const config = {
         after.provider = account.provider;
         after.providerAccountId = account.providerAccountId;
         after.activeAccount = false;
-      } else {
-        after.activeAccount = true;
       }
 
       return after;
