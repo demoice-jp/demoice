@@ -1,6 +1,6 @@
-import { signIn } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
 import LineButton from "@/components/widget/line-button";
+import { signIn } from "@/lib/auth/auth";
 
 export default function Page() {
   return (

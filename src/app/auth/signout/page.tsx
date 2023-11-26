@@ -1,5 +1,5 @@
-import { signOut } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
+import { signOut } from "@/lib/auth/auth";
 
 export default function Page() {
   return (

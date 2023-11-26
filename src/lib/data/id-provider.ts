@@ -2,6 +2,8 @@ const idProvider = {
   line: "LINE",
 };
 
+export type Providers = keyof typeof idProvider;
+
 export default class IdProvider {
   static getName(provider?: string) {
     if (!provider || !(provider in idProvider)) {

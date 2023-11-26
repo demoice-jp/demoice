@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
 import CreateAccountForm from "@/components/page/create-account-form";
+import { auth } from "@/lib/auth/auth";
 
 export default async function Page() {
   const session = await auth();

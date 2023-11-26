@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import IdProvider from "@/lib/data/id-provider";
 import prefecture from "@/lib/data/prefecture";
 import prisma from "@/lib/orm/client";

@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { signIn } from "@/auth";
 import Breadcrumbs from "@/components/breadcrumbs";
 import FormError from "@/components/widget/form-error";
 import LineButton from "@/components/widget/line-button";
+import { signIn } from "@/lib/auth/auth";
 
 function errorCodeToMessage(code: string) {
   switch (code) {
     case "DUPLICATED_ACCOUNT":
-      return "このアカウントは既に利用されています。";
+      return "このアカウントは既に登録されています。";
     default:
       return "予期しないエラーが発生しました。";
   }

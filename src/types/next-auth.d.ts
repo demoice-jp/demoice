@@ -2,6 +2,7 @@
 
 import { JWT } from "@auth/core/jwt";
 import NextAuth from "next-auth";
+import { Providers } from "@/lib/data/id-provider";
 
 declare module "next-auth" {
   interface Session {
@@ -24,7 +25,8 @@ declare module "@auth/core/jwt" {
     exp: number;
     jti: string;
     activeAccount: boolean;
-    provider: string;
-    providerAccountId: string;
+    accountId?: string;
+    provider?: Providers;
+    providerAccountId?: string;
   }
 }
