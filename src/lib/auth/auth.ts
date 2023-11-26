@@ -1,6 +1,6 @@
 import { JWT } from "@auth/core/jwt";
 import Line from "@auth/core/providers/line";
-import NextAuth from "next-auth";
+import NextAuth, { Session } from "next-auth";
 
 import { NextAuthConfig } from "next-auth";
 import IdProvider from "@/lib/data/id-provider";
@@ -53,37 +53,34 @@ export const config = {
         if (loggedInUser) {
           after.accountId = loggedInUser.id;
           after.activeAccount = true;
+          delete after.provider;
+          delete after.providerAccountId;
         }
       }
 
       return after;
     },
     session({ session, token }) {
-      session.valid = false;
+      const after: Session = {
+        valid: false,
+        expires: session.expires,
+      };
+
       if (token.provider && token.providerAccountId) {
-        if (!token.activeAccount) {
-          session.provider = {
-            provider: token.provider,
-            providerAccountId: token.providerAccountId,
-          };
-        } else {
-          console.error("Provider info is not found in the token.");
-          delete session.provider;
-        }
-        delete session.user;
-      } else {
-        if (token.accountId) {
-          session.user = {
-            accountId: token.accountId,
-          };
-          session.valid = true;
-        } else {
-          console.error("Account info is not found in the token.");
-        }
-        delete session.provider;
+        after.provider = {
+          provider: token.provider,
+          providerAccountId: token.providerAccountId,
+        };
       }
 
-      return session;
+      if (token.accountId) {
+        after.user = {
+          accountId: token.accountId,
+        };
+        after.valid = true;
+      }
+
+      return after;
     },
   },
 } satisfies NextAuthConfig;
