@@ -37,10 +37,14 @@ export type CreateAccountState = {
 };
 
 function arrangeBirthDate(inputs: { [key: string]: FormDataEntryValue }) {
+  function padZero(val: FormDataEntryValue) {
+    return typeof val === "string" ? val.padStart(2, "0") : "00";
+  }
+
   const { birthYear, birthMonth, birthDate } = inputs;
   const result: { [key: string]: FormDataEntryValue } = {
     ...inputs,
-    birthDate: `${birthYear}-${birthMonth}-${birthDate}`,
+    birthDate: `${birthYear}-${padZero(birthMonth)}-${padZero(birthDate)}`,
   };
 
   delete result.birthYear;
