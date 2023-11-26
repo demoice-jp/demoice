@@ -1,4 +1,4 @@
-import Breadcrumbs from "@/components/breadcrumbs";
+import Breadcrumbs from "@/components/widget/breadcrumbs";
 import LineButton from "@/components/widget/line-button";
 import { signIn } from "@/lib/auth/auth";
 

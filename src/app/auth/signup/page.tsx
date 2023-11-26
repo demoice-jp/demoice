@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Breadcrumbs from "@/components/breadcrumbs";
+import Breadcrumbs from "@/components/widget/breadcrumbs";
 import FormError from "@/components/widget/form-error";
 import LineButton from "@/components/widget/line-button";
 import { signIn } from "@/lib/auth/auth";

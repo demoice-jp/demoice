@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import Breadcrumbs from "@/components/breadcrumbs";
 import CreateAccountForm from "@/components/page/create-account-form";
+import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { auth } from "@/lib/auth/auth";
 
 export default async function Page() {
