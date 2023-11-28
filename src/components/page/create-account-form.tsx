@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { useFormState } from "react-dom";
 import FormError from "@/components/widget/form-error";
 import PrefectureSelect from "@/components/widget/prefecture-select";
@@ -9,6 +12,22 @@ import { createAccount } from "@/lib/action/account-action";
 
 export default function CreateAccountForm() {
   const [state, dispatch] = useFormState(createAccount, {});
+  const { data: session } = useSession();
+  const { replace } = useRouter();
+
+  useEffect(() => {
+    if (session?.valid) {
+      signOut({
+        redirect: false, //signOutと同時にリダイレクトするとTypeError: Response body object should not be disturbed or lockedになるため
+      }).then(() => {
+        replace("/auth/signup?error=DUPLICATED_ACCOUNT");
+      });
+    }
+  }, [session, replace]);
+
+  if (!session || session.valid) {
+    return <span className="loading loading-dots loading-lg" />;
+  }
 
   return (
     <div className="card w-full p-4 sm:p-7">

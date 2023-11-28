@@ -3,18 +3,6 @@ import Link from "next/link";
 import AccountHeader from "@/components/component/account-header";
 import { getUser } from "@/lib/data/user";
 
-type HeaderLinkProp = {
-  text: string;
-  href: string;
-};
-function HeaderLink({ text, href }: HeaderLinkProp) {
-  return (
-    <Link className="btn btn-sm" href={href}>
-      {text}
-    </Link>
-  );
-}
-
 export default async function Header() {
   const user = await getUser();
 
@@ -29,14 +17,7 @@ export default async function Header() {
             <Image src="/demoice.svg" alt="Demoice Logo" width={132} height={30} />
           </Link>
         </div>
-        {user ? (
-          <AccountHeader user={user} />
-        ) : (
-          <div className="flex items-center gap-x-3">
-            <HeaderLink text="ログイン" href="/auth/signin" />
-            <HeaderLink text="会員登録" href="/auth/signup" />
-          </div>
-        )}
+        <AccountHeader user={user} />
       </nav>
     </header>
   );
