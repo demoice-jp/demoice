@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { User } from "@prisma/client";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
 import FormError from "@/components/widget/form-error";
@@ -10,6 +12,9 @@ import PrefectureSelect from "@/components/widget/prefecture-select";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
 import { deleteAccount, updateAccount } from "@/lib/action/account-action";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 type UpdateAccountFormProp = {
   user: User;
@@ -67,7 +72,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
               <span className="label-text">生年月日</span>
             </label>
           </div>
-          <div className="sm:col-span-9 self-center">{dayjs(user.birthDate).format("YYYY年MM月DD日")}</div>
+          <div className="sm:col-span-9 self-center">{dayjs(user.birthDate).tz("UTC").format("YYYY年MM月DD日")}</div>
 
           <div className="sm:col-span-3">
             <label className="label mt-1.5" htmlFor="prefecture">
@@ -90,7 +95,9 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
               <span className="label-text">登録日</span>
             </label>
           </div>
-          <div className="sm:col-span-9 self-center">{dayjs(user.createdDate).format("YYYY年MM月DD日")}</div>
+          <div className="sm:col-span-9 self-center">
+            {dayjs(user.createdDate).tz("Asia/Tokyo").format("YYYY年MM月DD日")}
+          </div>
         </div>
         {updateState.message && (
           <div className="w-full flex justify-end">
