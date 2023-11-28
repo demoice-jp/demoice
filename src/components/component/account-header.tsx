@@ -5,7 +5,7 @@ import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-const NOT_DISPLAY_PATH = ["/auth/signup", "/auth/signin", "/account/register"];
+const NOT_DISPLAY_PATH = ["/auth/signup", "/auth/signin", "/auth/post-signin", "/account/register"];
 
 type AccountHeaderProp = {
   user: User | null;
