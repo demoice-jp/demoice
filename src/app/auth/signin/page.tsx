@@ -18,6 +18,7 @@ export default function Page({
 }: {
   searchParams?: {
     error?: string;
+    callback?: string;
   };
 }) {
   return (
@@ -32,7 +33,13 @@ export default function Page({
                 action={async () => {
                   "use server";
                   await signIn("line", {
-                    redirectTo: "/auth/post-signin",
+                    redirectTo: `/auth/post-signin${
+                      searchParams?.callback
+                        ? `?${new URLSearchParams({
+                            callback: searchParams.callback,
+                          })}`
+                        : ""
+                    }`,
                   });
                 }}
               >

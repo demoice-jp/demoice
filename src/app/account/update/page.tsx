@@ -6,7 +6,11 @@ import { getUser } from "@/lib/data/user";
 export default async function Page() {
   const user = await getUser();
   if (!user) {
-    redirect("/auth/signin");
+    redirect(
+      `/auth/signin?${new URLSearchParams({
+        callback: "/account/update",
+      })}`,
+    );
   }
 
   return (
