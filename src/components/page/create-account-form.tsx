@@ -5,12 +5,10 @@ import FormError from "@/components/widget/form-error";
 import PrefectureSelect from "@/components/widget/prefecture-select";
 import SubmitButton from "@/components/widget/submit-button";
 import YearMonthDay from "@/components/widget/year-month-day";
-import { createAccount, CreateAccountState } from "@/lib/action/account-action";
-
-const INITIAL_STATE: CreateAccountState = { message: null, errors: {} };
+import { createAccount } from "@/lib/action/account-action";
 
 export default function CreateAccountForm() {
-  const [state, dispatch] = useFormState(createAccount, INITIAL_STATE);
+  const [state, dispatch] = useFormState(createAccount, {});
 
   return (
     <div className="card w-full p-4 sm:p-7">
@@ -99,7 +97,7 @@ export default function CreateAccountForm() {
 
           <div className="sm:col-span-3">
             <label className="label mt-1.5" htmlFor="prefecture">
-              <span className="label-text">住所</span>
+              <span className="label-text">都道府県(住所)</span>
             </label>
           </div>
           <div className="sm:col-span-9">

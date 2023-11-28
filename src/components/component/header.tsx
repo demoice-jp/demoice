@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@/lib/auth/auth";
+import AccountHeader from "@/components/component/account-header";
+import { getUser } from "@/lib/data/user";
 
 type HeaderLinkProp = {
   text: string;
@@ -15,7 +16,7 @@ function HeaderLink({ text, href }: HeaderLinkProp) {
 }
 
 export default async function Header() {
-  const session = await auth();
+  const user = await getUser();
 
   return (
     <header className="sticky h-14 top-0 flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-white border-b border-gray-200 text-sm py-3 dark:bg-gray-800 dark:border-gray-700">
@@ -28,8 +29,8 @@ export default async function Header() {
             <Image src="/demoice.svg" alt="Demoice Logo" width={132} height={30} />
           </Link>
         </div>
-        {session?.valid ? (
-          <></>
+        {user ? (
+          <AccountHeader user={user} />
         ) : (
           <div className="flex items-center gap-x-3">
             <HeaderLink text="ログイン" href="/auth/signin" />

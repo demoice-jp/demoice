@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { auth } from "@/lib/auth/auth";
+import { auth, signOut } from "@/lib/auth/auth";
 import IdProvider from "@/lib/data/id-provider";
 import prefecture from "@/lib/data/prefecture";
 import prisma from "@/lib/orm/client";
@@ -12,8 +12,6 @@ import prisma from "@/lib/orm/client";
 dayjs.extend(customParseFormat);
 
 const AccountSchema = z.object({
-  id: z.string(),
-  createdDate: z.string(),
   userName: z.string().min(3).max(15),
   gender: z.enum(["male", "female"], {
     required_error: "性別を選択してください。",
@@ -31,7 +29,8 @@ const AccountSchema = z.object({
     .refine((id) => !!prefecture[id], "都道府県を選択してください。"),
 });
 
-const CreateAccountSchema = AccountSchema.omit({ id: true, createdDate: true });
+const CreateAccountSchema = AccountSchema;
+const UpdateAccountSchema = AccountSchema.omit({ gender: true, birthDate: true });
 
 export type CreateAccountState = {
   errors?: {
@@ -40,7 +39,20 @@ export type CreateAccountState = {
     birthDate?: string[];
     prefecture?: string[];
   };
-  message?: string | null;
+  message?: string;
+};
+
+export type UpdateAccountState = {
+  errors?: {
+    userName?: string[];
+    prefecture?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
+
+export type DeleteAccountState = {
+  message?: string;
 };
 
 function arrangeBirthDate(inputs: { [key: string]: FormDataEntryValue }) {
@@ -105,6 +117,7 @@ export async function createAccount(prevState: CreateAccountState, formData: For
         gender: parsedInput.data.gender,
         birthDate: parsedInput.data.birthDate,
         prefecture: parsedInput.data.prefecture,
+        deleted: false,
         idProvider: {
           create: {
             provider: IdProvider.validateProviderId(session.provider.provider),
@@ -121,4 +134,97 @@ export async function createAccount(prevState: CreateAccountState, formData: For
   }
 
   redirect("/");
+}
+
+export async function updateAccount(prevState: UpdateAccountState, formData: FormData): Promise<UpdateAccountState> {
+  const session = await auth();
+  if (!session?.valid || formData.get("id") !== session?.user?.accountId) {
+    redirect("/auth/signin");
+  }
+
+  const parsedInput = UpdateAccountSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedInput.success) {
+    return {
+      errors: parsedInput.error.flatten().fieldErrors,
+    };
+  }
+
+  const existingName = await prisma.user.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      AND: {
+        id: {
+          not: session.user.accountId,
+        },
+        userName: parsedInput.data.userName,
+      },
+    },
+  });
+  if (existingName) {
+    return {
+      errors: {
+        userName: ["このユーザー名は既に利用されています。"],
+      },
+    };
+  }
+
+  try {
+    await prisma.user.update({
+      data: {
+        userName: parsedInput.data.userName,
+        prefecture: parsedInput.data.prefecture,
+        updatedDate: new Date(),
+      },
+      where: {
+        id: session.user.accountId,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "アカウントの更新に失敗しました。",
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
+
+export async function deleteAccount(prevState: CreateAccountState, formData: FormData): Promise<DeleteAccountState> {
+  const session = await auth();
+  if (!session?.valid || formData.get("id") !== session?.user?.accountId) {
+    redirect("/auth/signin");
+  }
+
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        data: {
+          userName: session.user.accountId, //ユーザー名が再利用できるように
+          updatedDate: new Date(),
+          deleted: true,
+        },
+        where: {
+          id: session.user.accountId,
+        },
+      }),
+      prisma.providerId.deleteMany({
+        where: {
+          userId: session.user.accountId,
+        },
+      }),
+    ]);
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "アカウントの削除に失敗しました。",
+    };
+  }
+  await signOut({
+    redirectTo: "/",
+  });
+  return {};
 }

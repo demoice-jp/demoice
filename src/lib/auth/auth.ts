@@ -50,7 +50,7 @@ export const config = {
             },
           },
         });
-        if (loggedInUser) {
+        if (loggedInUser && !loggedInUser.deleted) {
           after.accountId = loggedInUser.id;
           after.activeAccount = true;
           delete after.provider;

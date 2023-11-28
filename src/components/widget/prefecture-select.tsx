@@ -3,7 +3,7 @@ import Prefecture from "@/lib/data/prefecture";
 
 export default function PrefectureSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select {...props} defaultValue="-1">
+    <select defaultValue="-1" {...props}>
       <option disabled value="-1">
         都道府県
       </option>
