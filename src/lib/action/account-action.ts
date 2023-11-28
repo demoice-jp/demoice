@@ -40,6 +40,7 @@ export type CreateAccountState = {
     prefecture?: string[];
   };
   message?: string;
+  success?: boolean;
 };
 
 export type UpdateAccountState = {
@@ -133,7 +134,9 @@ export async function createAccount(prevState: CreateAccountState, formData: For
     };
   }
 
-  redirect("/");
+  return {
+    success: true,
+  };
 }
 
 export async function updateAccount(prevState: UpdateAccountState, formData: FormData): Promise<UpdateAccountState> {

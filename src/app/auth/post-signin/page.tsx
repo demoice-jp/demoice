@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import PostSignin from "@/components/page/post-signin";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { auth } from "@/lib/auth/auth";
@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth/auth";
 export default async function Page() {
   const session = await auth();
   if (session?.valid) {
-    redirect("/");
+    redirect("/", RedirectType.replace);
   }
 
   return (

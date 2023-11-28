@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { signOut, useSession, getSession } from "next-auth/react";
 import { useFormState } from "react-dom";
 import FormError from "@/components/widget/form-error";
 import PrefectureSelect from "@/components/widget/prefecture-select";
@@ -13,19 +13,32 @@ import { createAccount } from "@/lib/action/account-action";
 export default function CreateAccountForm() {
   const [state, dispatch] = useFormState(createAccount, {});
   const { data: session } = useSession();
-  const { replace } = useRouter();
+  const { replace, refresh } = useRouter();
 
   useEffect(() => {
-    if (session?.valid) {
+    if (!state.success && session?.valid) {
       signOut({
         redirect: false, //signOutと同時にリダイレクトするとTypeError: Response body object should not be disturbed or lockedになるため
       }).then(() => {
         replace("/auth/signup?error=DUPLICATED_ACCOUNT");
+        refresh();
       });
     }
-  }, [session, replace]);
+  }, [state, session, replace, refresh]);
 
-  if (!session || session.valid) {
+  // Serverコンポーネントではセッションを取得してもJWTは書き変わらず、JWT取得時のDBアクセスが無駄に続いてしまうので、
+  // クライアント側でセッションを更新してからリダイレクトすることで解決する。
+  useEffect(() => {
+    if (state.success) {
+      getSession().then(() => {
+        // updateと一緒にrefreshを呼ぶと挙動がおかしいため。
+        replace("/");
+        refresh();
+      });
+    }
+  }, [state, replace, refresh]);
+
+  if (!session || session.valid || state.success) {
     return <span className="loading loading-dots loading-lg" />;
   }
 

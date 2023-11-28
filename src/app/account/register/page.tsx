@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import CreateAccountForm from "@/components/page/create-account-form";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
@@ -8,7 +8,7 @@ export default async function Page() {
   const session = await auth();
 
   if (session == null) {
-    redirect("/auth/signup");
+    redirect("/auth/signup", RedirectType.replace);
   }
 
   return (
