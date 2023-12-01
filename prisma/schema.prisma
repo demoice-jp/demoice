@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName String @unique @db.VarChar(36) @map("user_name") //ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
+  gender Gender
+  birthDate DateTime @db.Date @map("birth_date")
+  prefecture String @db.Char(2)
+  createdDate DateTime @default(now()) @db.Timestamptz(0) @map("created_date")
+  updatedDate DateTime @default(now()) @db.Timestamptz(0) @map("updated_date")
+  deleted Boolean
+  idProvider ProviderId[]
+
+  @@map("users")
+}
+
+model ProviderId {
+  provider Provider
+  providerId String @map("provider_id")
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.Uuid @map("user_id")
+
+  @@id([provider, providerId])
+  @@map("provider_ids")
+  @@index([userId])
+}
+
+enum Gender {
+  male
+  female
+
+  @@map("gender")
+}
+
+enum Provider {
+  line
+
+  @@map("provider")
+}
