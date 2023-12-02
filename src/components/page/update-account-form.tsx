@@ -131,7 +131,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
       <dialog id="delete-account-modal" className="modal">
         <div className="modal-box">
           <p>この操作は元に戻すことができません。本当にアカウントを削除してもよろしいでしょうか？</p>
-          <form action={deleteDispatch} className="mt-4 flex gap-4 justify-end">
+          <form action={deleteDispatch} className="modal-footer-buttons">
             <input type="hidden" name="id" value={user.id} />
             <SubmitCancelButton
               onClick={(e) => {

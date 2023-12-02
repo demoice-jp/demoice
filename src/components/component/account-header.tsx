@@ -5,8 +5,6 @@ import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-const NOT_DISPLAY_PATH = ["/auth/signup", "/auth/signin", "/auth/post-signin", "/account/register"];
-
 type AccountHeaderProp = {
   user: User | null;
 };
@@ -14,10 +12,6 @@ type AccountHeaderProp = {
 export default function AccountHeader({ user }: AccountHeaderProp) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
-
-  if (NOT_DISPLAY_PATH.includes(pathName)) {
-    return null;
-  }
 
   if (user) {
     return (

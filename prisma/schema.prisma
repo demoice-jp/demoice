@@ -8,28 +8,29 @@ datasource db {
 }
 
 model User {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userName String @unique @db.VarChar(36) @map("user_name") //ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
-  gender Gender
-  birthDate DateTime @db.Date @map("birth_date")
-  prefecture String @db.Char(2)
-  createdDate DateTime @default(now()) @db.Timestamptz(0) @map("created_date")
-  updatedDate DateTime @default(now()) @db.Timestamptz(0) @map("updated_date")
-  deleted Boolean
-  idProvider ProviderId[]
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName    String        @unique @map("user_name") @db.VarChar(36) // ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
+  gender      Gender
+  birthDate   DateTime      @map("birth_date") @db.Date
+  prefecture  String        @db.Char(2)
+  createdDate DateTime      @default(now()) @map("created_date") @db.Timestamptz(0)
+  updatedDate DateTime      @default(now()) @map("updated_date") @db.Timestamptz(0)
+  deleted     Boolean
+  idProvider  ProviderId[]
+  PolicyDraft PolicyDraft[]
 
   @@map("users")
 }
 
 model ProviderId {
-  provider Provider
-  providerId String @map("provider_id")
-  user User @relation(fields: [userId], references: [id])
-  userId String @db.Uuid @map("user_id")
+  provider   Provider
+  providerId String   @map("provider_id")
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @map("user_id") @db.Uuid
 
   @@id([provider, providerId])
-  @@map("provider_ids")
   @@index([userId])
+  @@map("provider_ids")
 }
 
 enum Gender {
@@ -43,4 +44,18 @@ enum Provider {
   line
 
   @@map("provider")
+}
+
+model PolicyDraft {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  author        User    @relation(fields: [authorId], references: [id])
+  authorId      String  @map("author_id") @db.Uuid
+  summary       String? @db.VarChar(60)
+  content       String?
+  contentHtml   String? @map("content_html")
+  contentString String? @map("content_string")
+  image         String?
+
+  @@index([authorId])
+  @@map("policy_drafts")
 }

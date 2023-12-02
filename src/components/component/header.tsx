@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import AccountHeader from "@/components/component/account-header";
+import HideHeaderItems from "@/components/component/hide-header-items";
 import { getUser } from "@/lib/data/user";
 
 export default async function Header() {
@@ -17,7 +18,14 @@ export default async function Header() {
             <Image src="/demoice.svg" alt="Demoice Logo" width={132} height={30} />
           </Link>
         </div>
-        <AccountHeader user={user} />
+        <HideHeaderItems>
+          <div className="flex gap-x-4">
+            <Link className="btn btn-primary btn-sm" href="/policy/create/step0">
+              新規投稿
+            </Link>
+            <AccountHeader user={user} />
+          </div>
+        </HideHeaderItems>
       </nav>
     </header>
   );

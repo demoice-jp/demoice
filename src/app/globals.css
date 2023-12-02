@@ -69,4 +69,8 @@ body {
   .light-text {
     @apply text-sm text-gray-600 dark:text-gray-400;
   }
+
+  .modal-footer-buttons {
+    @apply mt-4 flex gap-4 justify-end;
+  }
 }
