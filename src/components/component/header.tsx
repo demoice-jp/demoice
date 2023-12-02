@@ -20,7 +20,7 @@ export default async function Header() {
         </div>
         <HideHeaderItems>
           <div className="flex gap-x-4">
-            <Link className="btn btn-primary btn-sm" href="/policy/create/step0">
+            <Link className="btn btn-primary btn-sm" href="/policy/create">
               新規投稿
             </Link>
             <AccountHeader user={user} />

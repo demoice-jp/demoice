@@ -9,10 +9,10 @@ const STEPS = [
     name: "概要",
   },
   {
-    name: "詳細内容",
+    name: "本文記載",
   },
   {
-    name: "メイン画像",
+    name: "画像添付",
   },
 ];
 
@@ -21,7 +21,7 @@ export default function PolicyCreateSteps({ currentStep }: PolicyCreateStepsProp
     <ul className="steps mb-4">
       {STEPS.map((step, idx) => (
         <li key={step.name} className={clsx("step", idx < currentStep && "step-primary")}>
-          {step.name}
+          <span className="w-28">{step.name}</span>
         </li>
       ))}
     </ul>

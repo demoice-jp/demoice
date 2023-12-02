@@ -9,7 +9,12 @@ import prisma from "@/lib/orm/client";
 const MAX_DRAFT_COUNT = 10;
 
 const DeleteSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
+});
+
+const FillSummarySchema = z.object({
+  id: z.string().uuid(),
+  summary: z.string().min(5).max(60),
 });
 
 export type StartPolicyDraftState = {
@@ -24,14 +29,29 @@ export type DeletePolicyDraftState = {
   };
 };
 
+type FillPolicyDraftSummaryState = {
+  errors?: {
+    summary?: string[];
+  };
+  message?: string;
+};
+
+function redirectToLogin(): never {
+  redirect(
+    `/auth/signin?${new URLSearchParams({
+      callback: "/policy/create",
+    })}`,
+  );
+}
+
+function redirectToCreateMain(): never {
+  redirect("/policy/create");
+}
+
 export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
   const session = await auth();
   if (!session?.valid) {
-    redirect(
-      `/auth/signin?${new URLSearchParams({
-        callback: "/policy/create/step0",
-      })}`,
-    );
+    redirectToLogin();
   }
 
   const draftCount = await prisma.policyDraft.count({
@@ -58,11 +78,7 @@ export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
 export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formData: FormData) {
   const session = await auth();
   if (!session?.valid) {
-    redirect(
-      `/auth/signin?${new URLSearchParams({
-        callback: "/policy/create/step0",
-      })}`,
-    );
+    redirectToLogin();
   }
 
   const parsedInput = DeleteSchema.safeParse(Object.fromEntries(formData));
@@ -113,4 +129,47 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
       policyDrafts,
     };
   }
+}
+
+export async function fillPolicyDraftSummary(
+  prevState: FillPolicyDraftSummaryState,
+  formData: FormData,
+): Promise<FillPolicyDraftSummaryState> {
+  const session = await auth();
+  if (!session?.valid) {
+    redirectToLogin();
+  }
+
+  const parsedInput = FillSummarySchema.safeParse(Object.fromEntries(formData));
+  if (!parsedInput.success) {
+    if (parsedInput.error.flatten().fieldErrors.id) {
+      redirectToCreateMain();
+    }
+
+    return {
+      errors: parsedInput.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await prisma.policyDraft.update({
+      select: {
+        id: true,
+      },
+      data: {
+        summary: parsedInput.data.summary,
+      },
+      where: {
+        id: parsedInput.data.id,
+        authorId: session.user!.accountId,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "概要の更新に失敗しました。もう一度試してください。",
+    };
+  }
+
+  redirect(`/policy/create/${parsedInput.data.id}/step2`);
 }

@@ -6,11 +6,11 @@ import FormError from "@/components/widget/form-error";
 import { startPolicyDraft } from "@/lib/action/policy-draft-action";
 import { PolicyDraftSummary } from "@/lib/data/policy-draft";
 
-type CreatePolicyStep0Prop = {
+type CreatePolicyProp = {
   writingDrafts: PolicyDraftSummary[];
 };
 
-export default function CreatePolicyStep0({ writingDrafts }: CreatePolicyStep0Prop) {
+export default function CreatePolicy({ writingDrafts }: CreatePolicyProp) {
   const [startPolicyState, startPolicyDispatch] = useFormState(startPolicyDraft, {});
 
   return (
