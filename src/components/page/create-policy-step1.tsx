@@ -5,6 +5,7 @@ import { PolicyDraft } from "@prisma/client";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 import FormError from "@/components/widget/form-error";
+import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftSummary } from "@/lib/action/policy-draft-action";
 
 type CreatePolicyStep1Prop = {
@@ -21,7 +22,7 @@ export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {
   const [fillState, dispatch] = useFormState(fillPolicyDraftSummary, {});
 
   return (
-    <form className="flex flex-col gap-1.5 w-screen px-3 md:w-[36rem]" action={dispatch}>
+    <form className="flex flex-col gap-1.5 w-screen px-6 md:w-[36rem]" action={dispatch}>
       <input type="hidden" name="id" value={draft.id} />
       <h2>
         <label htmlFor="policy-summary">政策の概要を記載してください。</label>
@@ -29,7 +30,7 @@ export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {
       <input
         id="policy-summary"
         name="summary"
-        className="input input-bordered w-full"
+        className="single-line-input w-full"
         value={summary}
         onChange={onSummaryChange}
         required
@@ -46,9 +47,7 @@ export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {
         <Link href="/policy/create" className="btn">
           戻る
         </Link>
-        <button type="submit" className="btn btn-primary">
-          次へ
-        </button>
+        <SubmitButton>次へ</SubmitButton>
       </div>
       <div className="flex justify-end">
         <FormError messages={fillState.message} />

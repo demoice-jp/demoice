@@ -30,10 +30,6 @@ body {
   @apply rounded font-normal min-h-[2.5rem] h-10;
 }
 
-.input {
-  @apply h-10 rounded;
-}
-
 .select {
   @apply h-10 min-h-[2.5rem] rounded;
 }
@@ -54,6 +50,12 @@ body {
     &:hover {
       @apply bg-base-content/20 border-base-content/20;
     }
+  }
+  .rich-editor {
+    @apply p-2 input input-bordered;
+  }
+  .single-line-input {
+    @apply h-10 input input-bordered rounded;
   }
 }
 

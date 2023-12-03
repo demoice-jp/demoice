@@ -61,7 +61,7 @@ export default function CreateAccountForm() {
               aria-describedby="user-name-error"
               type="text"
               name="userName"
-              className="input input-bordered w-full"
+              className="single-line-input w-full"
               required
               minLength={3}
               maxLength={15}

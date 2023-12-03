@@ -1,6 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import PolicyCreateSteps from "@/components/component/policy-create-steps";
+import CreatePolicyStep2 from "@/components/page/create-policy-step2";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { getPolicyDraft } from "@/lib/data/policy-draft";
 
@@ -22,6 +23,7 @@ export default async function Page({ params: { draftId } }: PageProp) {
       <main className="flex-col-center">
         <section className="flex-col-center justify-center">
           <PolicyCreateSteps currentStep={2} />
+          <CreatePolicyStep2 draft={draft} />
         </section>
       </main>
     </>

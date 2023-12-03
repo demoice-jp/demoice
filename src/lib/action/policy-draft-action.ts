@@ -1,5 +1,7 @@
 "use server";
 
+import DOMPurify from "dompurify";
+import { JSDOM } from "jsdom";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
@@ -15,6 +17,30 @@ const DeleteSchema = z.object({
 const FillSummarySchema = z.object({
   id: z.string().uuid(),
   summary: z.string().min(5).max(60),
+});
+
+const FillContentSchema = z.object({
+  id: z.string().uuid(),
+  content: z
+    .string()
+    .min(1, "本文を記載してください。")
+    .max(1024 * 1024, "本文が長すぎます。")
+    .refine((str) => {
+      try {
+        JSON.parse(str);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }, "本文の形式が不正です。"),
+  contentHtml: z
+    .string()
+    .min(1, "本文を記載してください。")
+    .max(1024 * 1024, "本文が長すぎます。"),
+  contentString: z
+    .string()
+    .min(1, "本文を記載してください。")
+    .max(1024 * 1024, "本文が長すぎます。"),
 });
 
 export type StartPolicyDraftState = {
@@ -33,6 +59,10 @@ type FillPolicyDraftSummaryState = {
   errors?: {
     summary?: string[];
   };
+  message?: string;
+};
+
+type FillPolicyDraftContentState = {
   message?: string;
 };
 
@@ -172,4 +202,56 @@ export async function fillPolicyDraftSummary(
   }
 
   redirect(`/policy/create/${parsedInput.data.id}/step2`);
+}
+
+export async function fillPolicyDraftContent(
+  prevState: FillPolicyDraftContentState,
+  contentData: unknown,
+): Promise<FillPolicyDraftContentState> {
+  const session = await auth();
+  if (!session?.valid) {
+    redirectToLogin();
+  }
+
+  const parsedInput = FillContentSchema.safeParse(contentData);
+  if (!parsedInput.success) {
+    if (parsedInput.error.flatten().fieldErrors.id) {
+      redirectToCreateMain();
+    }
+
+    return {
+      message: parsedInput.error.errors[0].message,
+    };
+  }
+
+  try {
+    JSON.parse(parsedInput.data.content);
+  } catch (e) {
+    return {
+      message: "本文の形式が不正です。",
+    };
+  }
+
+  const jsdom = new JSDOM("");
+  const domPurify = DOMPurify(jsdom.window);
+  const pureContentHtml = domPurify.sanitize(parsedInput.data.contentHtml, {
+    USE_PROFILES: { html: true },
+  });
+
+  await prisma.policyDraft.update({
+    select: {
+      id: true,
+    },
+    data: {
+      content: parsedInput.data.content,
+      contentHtml: pureContentHtml,
+      contentString: parsedInput.data.contentString,
+    },
+    where: {
+      id: parsedInput.data.id,
+      authorId: session.user!.accountId,
+    },
+  });
+
+  return {};
 }

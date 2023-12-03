@@ -21,6 +21,9 @@ export const getPolicyDraftSummaries = cache(async (): Promise<PolicyDraftSummar
     where: {
       authorId: session.user!.accountId,
     },
+    orderBy: {
+      createdDate: "desc",
+    },
   });
 });
 
