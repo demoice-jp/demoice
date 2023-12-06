@@ -1,4 +1,3 @@
-import { HomeIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 type BreadcrumbsProps = {
@@ -15,7 +14,7 @@ export default function Breadcrumbs({ currentPage, interPages }: BreadcrumbsProp
       <ul>
         <li>
           <Link href="/">
-            <HomeIcon className="h-5 w-5" />
+            <span className="material-symbols-outlined">home</span>
           </Link>
         </li>
         {interPages &&

@@ -1,5 +1,4 @@
 "use client";
-import { Bars3Icon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import Link from "next/link";
 import { useFormState } from "react-dom";
@@ -59,7 +58,7 @@ function WritingDraft({
       </Link>
       <div className="dropdown">
         <div tabIndex={0} role="button" className="btn btn-ghost">
-          <Bars3Icon width={20} height={20} />
+          <span className="material-symbols-outlined">menu</span>
         </div>
         <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-24">
           <li>

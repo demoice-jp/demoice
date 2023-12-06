@@ -14,13 +14,13 @@ export default function CreatePolicy({ writingDrafts }: CreatePolicyProp) {
   const [startPolicyState, startPolicyDispatch] = useFormState(startPolicyDraft, {});
 
   return (
-    <div className="flex-col-center gap-4 px-3 pb-9 md:w-[36rem]">
-      <h2>あなたの想いを政策にして実現しましょう。</h2>
+    <div className="flex-col-center px-3 pb-9 md:w-[36rem]">
+      <h3>あなたの想いを政策にして実現しましょう。</h3>
       <form action={startPolicyDispatch} className="flex-col-center">
-        <button className="btn btn-primary">新しく記載する</button>
+        <button className="btn btn-primary my-4">新しく記載する</button>
         <FormError messages={startPolicyState.error} />
       </form>
-      <h3 className="self-start">続きから記載する</h3>
+      <p className="self-start">続きから記載する</p>
       <WritingDrafts writingDrafts={writingDrafts} />
     </div>
   );

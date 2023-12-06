@@ -6,8 +6,8 @@ import { PolicyDraft } from "@prisma/client";
 import { $getRoot, EditorState, LexicalEditor } from "lexical";
 import Link from "next/link";
 import { useFormState } from "react-dom";
+import RichTextEditor from "@/components/widget/editor/rich-text-editor";
 import FormError from "@/components/widget/form-error";
-import RichTextEditor from "@/components/widget/rich-text-editor";
 import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftContent } from "@/lib/action/policy-draft-action";
 
@@ -47,10 +47,10 @@ export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
           }
         }}
       >
-        <h2>
+        <p className="text-xl">
           <label htmlFor="policy-summary">政策の本文を記載してください。</label>
-        </h2>
-        <div className="flex justify-between mt-2">
+        </p>
+        <div className="flex justify-between">
           <Link href={`/policy/create/${draft.id}/step1`} className="btn">
             戻る
           </Link>

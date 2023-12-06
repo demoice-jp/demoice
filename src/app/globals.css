@@ -39,23 +39,114 @@ body {
 }
 
 @layer base {
+  h1 {
+    @apply text-4xl font-extrabold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
   h2 {
-    @apply text-xl font-bold text-gray-800 dark:text-gray-200;
+    @apply text-3xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h3 {
+    @apply text-2xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h4 {
+    @apply text-xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h5 {
+    @apply text-lg font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h6 {
+    @apply font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  blockquote {
+    @apply px-4 py-1 mx-2 border-s-4 border-gray-400 text-gray-500 bg-gray-100 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-400;
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  p {
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  ul,ol {
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  ul li {
+    @apply list-disc list-inside ml-3;
+  }
+
+  ul ul li {
+    @apply list-[circle]
+  }
+
+  ul ul ul li {
+    @apply list-[square]
+  }
+
+  ol li {
+    @apply list-decimal list-inside ml-3;
+  }
+
+  input::placeholder {
+    @apply opacity-40;
   }
 }
 
 @layer components {
+  .btn-ghost {
+    &:disabled {
+      @apply bg-transparent;
+    }
+  }
+
   .radio-label {
     @apply btn flex bg-base-100 border border-base-content/20;
     &:hover {
       @apply bg-base-content/20 border-base-content/20;
     }
   }
-  .rich-editor {
-    @apply p-2 input input-bordered;
-  }
   .single-line-input {
     @apply h-10 input input-bordered rounded;
+  }
+  .rich-editor {
+    &:focus,
+    &:focus-within {
+      box-shadow: none;
+      @apply outline-none;
+    }
+  }
+
+  .link-basic {
+    @apply underline cursor-pointer text-blue-600;
   }
 }
 
@@ -74,5 +165,17 @@ body {
 
   .modal-footer-buttons {
     @apply mt-4 flex gap-4 justify-end;
+  }
+
+  .nested-list-item {
+    @apply list-none;
+  }
+
+  .ol-depth2 li:not(.nested-list-item) {
+    list-style-type: upper-alpha;
+  }
+
+  .ol-depth3 li:not(.nested-list-item) {
+    list-style-type: lower-alpha;
   }
 }
