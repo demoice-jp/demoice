@@ -81,7 +81,7 @@ function WritingDraft({
       <dialog id={modalId} className="modal">
         <div className="modal-box">
           <p>本当に「{`${summary}`}」を削除してもよろしいでしょうか？</p>
-          {error?.draftId === writingDraft.id && <FormError messages={[error.message]} />}
+          {error?.draftId === writingDraft.id && <FormError messages={[error!.message]} />}
           <div className="modal-footer-buttons">
             <SubmitCancelButton
               onClick={(e) => {

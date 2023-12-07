@@ -8,16 +8,16 @@ datasource db {
 }
 
 model User {
-  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userName    String        @unique @map("user_name") @db.VarChar(36) // ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName    String       @unique @map("user_name") @db.VarChar(36) // ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
   gender      Gender
-  birthDate   DateTime      @map("birth_date") @db.Date
-  prefecture  String        @db.Char(2)
-  createdDate DateTime      @default(now()) @map("created_date") @db.Timestamptz(0)
-  updatedDate DateTime      @default(now()) @map("updated_date") @db.Timestamptz(0)
+  birthDate   DateTime     @map("birth_date") @db.Date
+  prefecture  String       @db.Char(2)
+  createdDate DateTime     @default(now()) @map("created_date") @db.Timestamptz(0)
+  updatedDate DateTime     @default(now()) @map("updated_date") @db.Timestamptz(0)
   deleted     Boolean
   idProvider  ProviderId[]
-  PolicyDraft PolicyDraft[]
+  content     Content[]
 
   @@map("users")
 }
@@ -46,17 +46,19 @@ enum Provider {
   @@map("provider")
 }
 
-model PolicyDraft {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  author        User     @relation(fields: [authorId], references: [id])
-  authorId      String   @map("author_id") @db.Uuid
-  summary       String?  @db.VarChar(60)
+model Content {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  author        User      @relation(fields: [authorId], references: [id])
+  authorId      String    @map("author_id") @db.Uuid
+  summary       String?   @db.VarChar(60)
   content       String?
-  contentHtml   String?  @map("content_html")
-  contentString String?  @map("content_string")
+  contentHtml   String?   @map("content_html")
+  contentString String?   @map("content_string")
   image         String?
-  createdDate   DateTime @default(now()) @map("created_date") @db.Timestamptz(0)
+  createdDate   DateTime  @default(now()) @map("created_date") @db.Timestamptz(0)
+  commited      Boolean   @default(false)
+  comitDate     DateTime? @map("comit_date") @db.Timestamptz(0)
 
   @@index([authorId])
-  @@map("policy_drafts")
+  @@map("contents")
 }

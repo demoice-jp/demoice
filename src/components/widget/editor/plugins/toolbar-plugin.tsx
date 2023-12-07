@@ -329,6 +329,16 @@ export default function ToolbarPlugin() {
           <TextFormatButtons editor={editor} textFormat={textFormat} />
         </div>
         <div className="divider divider-horizontal mx-0.5" />
+        <button
+          type="button"
+          className="btn btn-ghost btn-xs"
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+          }}
+          aria-label="画像"
+        >
+          <span className="material-symbols-outlined">image</span>
+        </button>
       </div>
     </div>
   );

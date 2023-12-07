@@ -84,7 +84,7 @@ export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
     redirectToLogin();
   }
 
-  const draftCount = await prisma.policyDraft.count({
+  const draftCount = await prisma.content.count({
     where: {
       authorId: session.user!.accountId,
     },
@@ -96,7 +96,7 @@ export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
     };
   }
 
-  const newDraft = await prisma.policyDraft.create({
+  const newDraft = await prisma.content.create({
     data: {
       authorId: session.user!.accountId,
     },
@@ -120,7 +120,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
 
   let error: DeletePolicyDraftState["error"];
   try {
-    await prisma.policyDraft.delete({
+    await prisma.content.delete({
       select: {
         id: true,
       },
@@ -137,7 +137,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
     };
   }
 
-  const policyDrafts = await prisma.policyDraft.findMany({
+  const policyDrafts = await prisma.content.findMany({
     select: {
       id: true,
       summary: true,
@@ -182,7 +182,7 @@ export async function fillPolicyDraftSummary(
   }
 
   try {
-    await prisma.policyDraft.update({
+    await prisma.content.update({
       select: {
         id: true,
       },
@@ -238,7 +238,7 @@ export async function fillPolicyDraftContent(
     USE_PROFILES: { html: true },
   });
 
-  await prisma.policyDraft.update({
+  await prisma.content.update({
     select: {
       id: true,
     },

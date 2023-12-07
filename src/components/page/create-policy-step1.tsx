@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import { PolicyDraft } from "@prisma/client";
+import { Content } from "@prisma/client";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 import FormError from "@/components/widget/form-error";
@@ -9,7 +9,7 @@ import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftSummary } from "@/lib/action/policy-draft-action";
 
 type CreatePolicyStep1Prop = {
-  draft: PolicyDraft;
+  draft: Content;
 };
 
 export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {

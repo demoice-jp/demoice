@@ -1,9 +1,9 @@
 import { cache } from "react";
-import { PolicyDraft } from "@prisma/client";
+import { Content } from "@prisma/client";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
 
-export type PolicyDraftSummary = Pick<PolicyDraft, "id" | "summary" | "authorId" | "contentString">;
+export type PolicyDraftSummary = Pick<Content, "id" | "summary" | "authorId" | "contentString">;
 
 export const getPolicyDraftSummaries = cache(async (): Promise<PolicyDraftSummary[]> => {
   const session = await auth();
@@ -11,7 +11,7 @@ export const getPolicyDraftSummaries = cache(async (): Promise<PolicyDraftSummar
     return [];
   }
 
-  return prisma.policyDraft.findMany({
+  return prisma.content.findMany({
     select: {
       id: true,
       summary: true,
@@ -33,7 +33,7 @@ export const getPolicyDraft = cache(async (id: string) => {
     return null;
   }
 
-  return prisma.policyDraft.findUnique({
+  return prisma.content.findUnique({
     where: {
       id,
       authorId: session.user!.accountId,

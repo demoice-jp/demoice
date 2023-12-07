@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { $generateHtmlFromNodes } from "@lexical/html";
-import { PolicyDraft } from "@prisma/client";
+import { Content } from "@prisma/client";
 import { $getRoot, EditorState, LexicalEditor } from "lexical";
 import Link from "next/link";
 import { useFormState } from "react-dom";
@@ -12,7 +12,7 @@ import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftContent } from "@/lib/action/policy-draft-action";
 
 type CreatePolicyStep2Prop = {
-  draft: PolicyDraft;
+  draft: Content;
 };
 
 export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
