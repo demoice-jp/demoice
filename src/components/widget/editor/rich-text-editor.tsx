@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { LinkNode } from "@lexical/link";
 import { ListNode, ListItemNode } from "@lexical/list";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -39,6 +39,26 @@ function EditorRefPlugin({ editorRef }: { editorRef?: React.MutableRefObject<Lex
 }
 
 export default function RichTextEditor({ initialState, className, editorRef, editorStateRef }: RichTextEditorProp) {
+  const [editorStyle, setEditorStyle] = useState({});
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) {
+      setEditorStyle({});
+      return;
+    }
+
+    const resizeListener = () => {
+      setEditorStyle({
+        maxHeight: `${vv.height - 155}px`,
+      });
+    };
+
+    vv.addEventListener("resize", resizeListener);
+    resizeListener();
+    return () => vv.removeEventListener("resize", resizeListener);
+  }, []);
+
   const onEditorStateChange = useCallback(
     (editorState: EditorState) => {
       if (editorStateRef) {
@@ -76,7 +96,10 @@ export default function RichTextEditor({ initialState, className, editorRef, edi
         <ToolbarPlugin />
         <RichTextPlugin
           contentEditable={
-            <ContentEditable className="grow p-2 rich-editor max-h-[calc(100vh_-_155px)] overflow-y-auto" />
+            <ContentEditable
+              style={editorStyle} //スマホソフトキーボード対応
+              className="grow p-2 rich-editor max-h-[calc(100vh_-_155px)] overflow-y-auto"
+            />
           }
           placeholder={<div />}
           ErrorBoundary={LexicalErrorBoundary}
