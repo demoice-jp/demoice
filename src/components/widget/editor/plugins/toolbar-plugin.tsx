@@ -25,9 +25,8 @@ import {
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
 } from "lexical";
-import { ImagePostError, ImagePostResponse } from "@/app/api/media/content/[id]/image/route";
 import { useContentContext } from "@/components/hooks";
-import { INSERT_IMAGE_COMMAND } from "@/components/widget/editor/plugins/image-plugin";
+import { INSERT_IMAGE_COMMAND, uploadImage } from "@/components/widget/editor/plugins/image-plugin";
 import { getSelectedNode, sanitizeUrl, validateUrl } from "@/components/widget/editor/utils";
 import FormError from "@/components/widget/form-error";
 
@@ -191,42 +190,16 @@ export default function ToolbarPlugin() {
       }
 
       setIsLoadingImage(true);
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const response = await fetch(`/api/media/content/${contentId}/image`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                image: reader.result,
-              }),
-            });
-            if (response.ok) {
-              const { location }: ImagePostResponse = await response.json();
-              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                src: location,
-                altText: "挿入画像",
-              });
-              if (document) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                (document.getElementById("insert_image_modal") as HTMLFormElement)?.close();
-              }
-              resolve(null);
-            } else {
-              const { message }: ImagePostError = await response.json();
-              console.error(message);
-              reject(new Error(message));
-            }
-          } catch (e) {
-            console.error(e);
-            reject(new Error("画像の挿入に失敗しました"));
-          }
-        };
-        reader.readAsDataURL(files[0]);
-      })
+
+      uploadImage(contentId, files[0])
+        .then((response) => {
+          editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+            src: response.location,
+            altText: "挿入画像",
+            width: response.size.width,
+            height: response.size.height,
+          });
+        })
         .catch((e: Error) => {
           if (imageFileInputRef.current) {
             imageFileInputRef.current.value = "";

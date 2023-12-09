@@ -15,6 +15,8 @@ import {
 export type ImagePayload = {
   altText: string;
   src: string;
+  width: number;
+  height: number;
   key?: NodeKey;
 };
 
@@ -22,14 +24,16 @@ export type SerializedImageNode = Spread<
   {
     src: string;
     altText: string;
+    width: number;
+    height: number;
   },
   SerializedLexicalNode
 >;
 
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src } = domNode;
-    const node = $createImageNode({ src, altText });
+    const { alt: altText, src, width, height } = domNode;
+    const node = $createImageNode({ src, altText, width, height });
     return { node };
   }
   return null;
@@ -38,10 +42,14 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
 export class ImageNode extends DecoratorNode<React.ReactElement> {
   __src: string;
   __altText: string;
-  constructor(src: string, altText: string, key?: NodeKey) {
+  __width: number;
+  __height: number;
+  constructor(src: string, altText: string, width: number, height: number, key?: NodeKey) {
     super(key);
     this.__src = src;
     this.__altText = altText;
+    this.__width = width;
+    this.__height = height;
   }
 
   static getType(): string {
@@ -49,14 +57,16 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
   }
 
   static clone(node: ImageNode): ImageNode {
-    return new ImageNode(node.__src, node.__altText, node.__key);
+    return new ImageNode(node.__src, node.__altText, node.__width, node.__height, node.__key);
   }
 
   static importJSON(serializedNode: SerializedImageNode) {
-    const { src, altText } = serializedNode;
+    const { src, altText, width, height } = serializedNode;
     return $createImageNode({
       src,
       altText,
+      width,
+      height,
     });
   }
 
@@ -66,6 +76,8 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
       type: "image",
       src: this.__src,
       altText: this.__altText,
+      width: this.__width,
+      height: this.__height,
     };
   }
 
@@ -73,6 +85,8 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
     const element = document.createElement("img");
     element.setAttribute("src", this.__src);
     element.setAttribute("alt", this.__altText);
+    element.setAttribute("width", String(this.__width));
+    element.setAttribute("height", String(this.__height));
     return { element };
   }
 
@@ -101,12 +115,12 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
 
   decorate(): React.ReactElement {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img alt={this.__altText} src={this.__src} />;
+    return <img alt={this.__altText} src={this.__src} width={this.__width} height={this.__height} />;
   }
 }
 
-export function $createImageNode({ src, altText, key }: ImagePayload): ImageNode {
-  return $applyNodeReplacement(new ImageNode(src, altText, key));
+export function $createImageNode({ src, altText, width, height, key }: ImagePayload): ImageNode {
+  return $applyNodeReplacement(new ImageNode(src, altText, width, height, key));
 }
 
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {

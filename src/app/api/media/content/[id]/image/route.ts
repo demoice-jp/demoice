@@ -32,7 +32,7 @@ export type ImagePostError = {
 };
 
 const postSchema = z.object({
-  image: z.string(),
+  image: z.string().max(2_000_000),
 });
 
 const allowedTypes: { [key: string]: string | undefined } = {

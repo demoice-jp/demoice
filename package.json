@@ -18,6 +18,7 @@
     "@lexical/react": "^0.12.4",
     "@prisma/client": "^5.6.0",
     "clsx": "^2.0.0",
+    "compressorjs": "^1.2.1",
     "dayjs": "^1.11.10",
     "dompurify": "^3.0.6",
     "jsdom": "^23.0.1",
