@@ -2,6 +2,7 @@
 
 import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
@@ -129,6 +130,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
         authorId: session.user!.accountId,
       },
     });
+    revalidateTag("content");
   } catch (e) {
     console.error(e);
     error = {

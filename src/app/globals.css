@@ -178,4 +178,10 @@ body {
   .ol-depth3 li:not(.nested-list-item) {
     list-style-type: lower-alpha;
   }
+
+  .content-image {
+    & img {
+      @apply inline align-bottom;
+    }
+  }
 }

@@ -21,9 +21,19 @@ npm run dev-services
 npm run dev-db-migrate
 ```
 
+ローカルにts-nodeがインストールされていなければインストール
+```bash
+npm install -g ts-node
+```
+MinIO (S3エミュレータとして利用)を初期化
+```bash
+npm run dev-minio-init
+```
+
 開発サーバーを起動
 ```bash
 npm run dev
 ```
 
-[http://localhost:3000](http://localhost:3000)にアクセスするとDemoiceの開発環境が立ち上がっている。
+[http://localhost:8800](http://localhost:8800)にアクセスするとDemoiceの開発環境が立ち上がっている。ポートはNGINX_PORT
+環境変数で変更可能。

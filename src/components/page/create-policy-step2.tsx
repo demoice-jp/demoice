@@ -64,6 +64,9 @@ export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
       </form>
       <div className="w-full px-4 my-4 md:max-w-[60rem]">
         <RichTextEditor
+          contentContext={{
+            id: draft.id,
+          }}
           className="min-h-[24rem]"
           initialState={draft.content || undefined}
           editorStateRef={editorStateRef}

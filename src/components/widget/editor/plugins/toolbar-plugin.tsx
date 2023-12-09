@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isListNode, ListNode, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -25,10 +25,15 @@ import {
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
 } from "lexical";
+import { ImagePostError, ImagePostResponse } from "@/app/api/media/content/[id]/image/route";
+import { useContentContext } from "@/components/hooks";
+import { INSERT_IMAGE_COMMAND } from "@/components/widget/editor/plugins/image-plugin";
 import { getSelectedNode, sanitizeUrl, validateUrl } from "@/components/widget/editor/utils";
+import FormError from "@/components/widget/form-error";
 
 export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
+  const { id: contentId } = useContentContext();
   const [blockType, setBlockType] = useState<keyof typeof BLOCK_TYPES>("paragraph");
 
   const [textFormat, setTextFormat] = useState({
@@ -44,6 +49,10 @@ export default function ToolbarPlugin() {
 
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState<string>("");
 
   const changeLinkUrl = useCallback((url: string) => {
     setLinkUrl(url);
@@ -173,6 +182,63 @@ export default function ToolbarPlugin() {
       ),
     );
   }, [editor, $updateToolbar]);
+
+  const insertImage = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files) {
+        return;
+      }
+
+      setIsLoadingImage(true);
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const response = await fetch(`/api/media/content/${contentId}/image`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                image: reader.result,
+              }),
+            });
+            if (response.ok) {
+              const { location }: ImagePostResponse = await response.json();
+              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                src: location,
+                altText: "挿入画像",
+              });
+              if (document) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                (document.getElementById("insert_image_modal") as HTMLFormElement)?.close();
+              }
+              resolve(null);
+            } else {
+              const { message }: ImagePostError = await response.json();
+              console.error(message);
+              reject(new Error(message));
+            }
+          } catch (e) {
+            console.error(e);
+            reject(new Error("画像の挿入に失敗しました"));
+          }
+        };
+        reader.readAsDataURL(files[0]);
+      })
+        .catch((e: Error) => {
+          if (imageFileInputRef.current) {
+            imageFileInputRef.current.value = "";
+          }
+          setImageLoadError(e.message);
+        })
+        .finally(() => {
+          setIsLoadingImage(false);
+        });
+    },
+    [editor, contentId],
+  );
 
   return (
     <div className="flex flex-col w-full p-2 border-b border-base-content md:flex-row">
@@ -333,12 +399,41 @@ export default function ToolbarPlugin() {
           type="button"
           className="btn btn-ghost btn-xs"
           onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+            if (imageFileInputRef.current) {
+              imageFileInputRef.current.value = "";
+            }
+            setImageLoadError("");
+
+            if (document) {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+              (document.getElementById("insert_image_modal") as HTMLFormElement)?.showModal();
+            }
           }}
           aria-label="画像"
         >
           <span className="material-symbols-outlined">image</span>
         </button>
+        <dialog id="insert_image_modal" className="modal">
+          <div className="modal-box">
+            <h4>画像を挿入</h4>
+            <input
+              type="file"
+              className={clsx("file-input file-input-bordered w-full", isLoadingImage && "hidden")}
+              accept="image/png,image/jpeg,image/gif"
+              ref={imageFileInputRef}
+              onChange={insertImage}
+            />
+            <FormError messages={imageLoadError} />
+            <progress className={clsx("progress my-5", !isLoadingImage && "hidden")} />
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="btn btn-ghost" disabled={isLoadingImage}>
+                  キャンセル
+                </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
       </div>
     </div>
   );
