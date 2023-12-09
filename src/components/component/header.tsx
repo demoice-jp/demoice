@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import DemoiceLogo from "@/asset/demoice.svg";
 import AccountHeader from "@/components/component/account-header";
 import HideHeaderItems from "@/components/component/hide-header-items";
 import { getUser } from "@/lib/data/user";
@@ -15,7 +16,7 @@ export default async function Header() {
       >
         <div className="flex items-center gap-x-2 md:gap-x-3">
           <Link className="flex-none dark:focus:outline-none" href="/">
-            <Image src="/demoice.svg" alt="Demoice Logo" width={132} height={30} />
+            <Image src={DemoiceLogo} alt="Demoice Logo" priority />
           </Link>
         </div>
         <HideHeaderItems>
