@@ -91,13 +91,23 @@ export class ImageNode extends DecoratorBlockNode {
     };
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement("img");
-    element.setAttribute("src", this.__src);
-    element.setAttribute("alt", this.__altText);
-    element.setAttribute("width", String(this.__width));
-    element.setAttribute("height", String(this.__height));
-    return { element };
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const config = editor._config;
+    const divWrapElement = document.createElement("div");
+    divWrapElement.className = clsx(config.theme.embedBlock?.base, config.theme.image);
+    if (this.__format) {
+      divWrapElement.style.textAlign = this.__format;
+    }
+
+    const imgElement = document.createElement("img");
+    imgElement.setAttribute("src", this.__src);
+    imgElement.setAttribute("alt", this.__altText);
+    imgElement.setAttribute("width", String(this.__width));
+    imgElement.setAttribute("height", String(this.__height));
+
+    divWrapElement.appendChild(imgElement);
+
+    return { element: divWrapElement };
   }
 
   static importDOM(): DOMConversionMap | null {

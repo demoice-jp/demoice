@@ -81,23 +81,35 @@ export default class YouTubeNode extends DecoratorBlockNode {
     };
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement("iframe");
-    element.setAttribute("data-youtube-video", this.__videoId);
-    if (this.__time) {
-      element.setAttribute("data-youtube-time", this.__time);
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const config = editor._config;
+    const divWrapElement = document.createElement("div");
+    if (config.theme.embedBlock?.base) {
+      divWrapElement.className = config.theme.embedBlock.base;
     }
-    element.setAttribute("width", "560");
-    element.setAttribute("height", "315");
-    element.setAttribute("src", getEmbedUrl(this.__videoId, this.__time));
-    element.setAttribute("frameborder", "0");
-    element.setAttribute(
+    if (this.__format) {
+      divWrapElement.style.textAlign = this.__format;
+    }
+
+    const iframeElement = document.createElement("iframe");
+    iframeElement.setAttribute("data-youtube-video", this.__videoId);
+    if (this.__time) {
+      iframeElement.setAttribute("data-youtube-time", this.__time);
+    }
+    iframeElement.setAttribute("width", "560");
+    iframeElement.setAttribute("height", "315");
+    iframeElement.setAttribute("src", getEmbedUrl(this.__videoId, this.__time));
+    iframeElement.setAttribute("frameborder", "0");
+    iframeElement.setAttribute(
       "allow",
       "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
     );
-    element.setAttribute("allowfullscreen", "true");
-    element.setAttribute("title", "YouTube video");
-    return { element };
+    iframeElement.setAttribute("allowfullscreen", "true");
+    iframeElement.setAttribute("title", "YouTube video");
+
+    divWrapElement.appendChild(iframeElement);
+
+    return { element: divWrapElement };
   }
 
   static importDOM(): DOMConversionMap | null {
