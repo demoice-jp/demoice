@@ -4,7 +4,7 @@ import { mergeRegister, $insertNodeToNearestRoot } from "@lexical/utils";
 import Compressor from "compressorjs";
 import { COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from "lexical";
 import { ImagePostError, ImagePostResponse } from "@/app/api/media/content/[id]/image/route";
-import { $createImageNode, ImageNode, ImagePayload } from "@/components/widget/editor/nodes/ImageNode";
+import { $createImageNode, ImageNode, ImagePayload } from "@/components/widget/editor/nodes/image-node";
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -86,10 +86,6 @@ export function uploadImage(contentId: string, imageFile: File): Promise<UploadI
         if (response.ok) {
           const body: ImagePostResponse = await response.json();
 
-          if (document) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            (document.getElementById("insert_image_modal") as HTMLFormElement)?.close();
-          }
           resolve({
             ...body,
             size,

@@ -27,6 +27,7 @@ import {
 } from "lexical";
 import { useContentContext } from "@/components/hooks";
 import { INSERT_IMAGE_COMMAND, uploadImage } from "@/components/widget/editor/plugins/image-plugin";
+import { INSERT_VIDEO_COMMAND, parseVideoUrl } from "@/components/widget/editor/plugins/video-plugin";
 import { getSelectedNode, sanitizeUrl, validateUrl } from "@/components/widget/editor/utils";
 import FormError from "@/components/widget/form-error";
 
@@ -52,6 +53,9 @@ export default function ToolbarPlugin() {
   const imageFileInputRef = useRef<HTMLInputElement>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [imageLoadError, setImageLoadError] = useState<string>("");
+
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrlError, setVideoUrlError] = useState("");
 
   const changeLinkUrl = useCallback((url: string) => {
     setLinkUrl(url);
@@ -193,6 +197,11 @@ export default function ToolbarPlugin() {
 
       uploadImage(contentId, files[0])
         .then((response) => {
+          if (document) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            (document.getElementById("insert_image_modal") as HTMLFormElement)?.close();
+          }
+
           editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
             src: response.location,
             altText: "挿入画像",
@@ -368,45 +377,99 @@ export default function ToolbarPlugin() {
           <TextFormatButtons editor={editor} textFormat={textFormat} />
         </div>
         <div className="divider divider-horizontal mx-0.5" />
-        <button
-          type="button"
-          className="btn btn-ghost btn-xs"
-          onClick={() => {
-            if (imageFileInputRef.current) {
-              imageFileInputRef.current.value = "";
-            }
-            setImageLoadError("");
+        <div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-xs"
+            onClick={() => {
+              if (imageFileInputRef.current) {
+                imageFileInputRef.current.value = "";
+              }
+              setImageLoadError("");
 
-            if (document) {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-              (document.getElementById("insert_image_modal") as HTMLFormElement)?.showModal();
-            }
-          }}
-          aria-label="画像"
-        >
-          <span className="material-symbols-outlined">image</span>
-        </button>
-        <dialog id="insert_image_modal" className="modal">
-          <div className="modal-box">
-            <h4>画像を挿入</h4>
-            <input
-              type="file"
-              className={clsx("file-input file-input-bordered w-full", isLoadingImage && "hidden")}
-              accept="image/png,image/jpeg,image/gif"
-              ref={imageFileInputRef}
-              onChange={insertImage}
-            />
-            <FormError messages={imageLoadError} />
-            <progress className={clsx("progress my-5", !isLoadingImage && "hidden")} />
-            <div className="modal-action">
-              <form method="dialog">
-                <button className="btn btn-ghost" disabled={isLoadingImage}>
-                  キャンセル
-                </button>
-              </form>
+              if (document) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                (document.getElementById("insert_image_modal") as HTMLFormElement)?.showModal();
+              }
+            }}
+            aria-label="画像"
+          >
+            <span className="material-symbols-outlined">image</span>
+          </button>
+          <dialog id="insert_image_modal" className="modal">
+            <div className="modal-box">
+              <h4>画像を挿入</h4>
+              <input
+                type="file"
+                className={clsx("file-input file-input-bordered w-full", isLoadingImage && "hidden")}
+                accept="image/png,image/jpeg,image/gif"
+                ref={imageFileInputRef}
+                onChange={insertImage}
+              />
+              <FormError messages={imageLoadError} />
+              <progress className={clsx("progress my-5", !isLoadingImage && "hidden")} />
+              <div className="modal-action">
+                <form method="dialog">
+                  <button className="btn btn-ghost" disabled={isLoadingImage}>
+                    キャンセル
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        </dialog>
+          </dialog>
+        </div>
+        <div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-xs"
+            onClick={() => {
+              setVideoUrl("");
+              setVideoUrlError("");
+              if (document) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                (document.getElementById("insert_video_modal") as HTMLFormElement)?.showModal();
+              }
+            }}
+            aria-label="動画"
+          >
+            <span className="material-symbols-outlined">videocam</span>
+          </button>
+          <dialog id="insert_video_modal" className="modal">
+            <div className="modal-box">
+              <h4>Youtube動画を挿入</h4>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="https://youtu.be/ZAq12wSXcDe?t=100"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+              />
+              <FormError messages={videoUrlError} />
+              <div className="modal-action">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    const parsed = parseVideoUrl(videoUrl);
+                    if (!parsed) {
+                      setVideoUrlError("Youtube動画のURLではありません");
+                      return;
+                    }
+                    if (document) {
+                      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                      (document.getElementById("insert_video_modal") as HTMLFormElement)?.close();
+                    }
+                    editor.dispatchCommand(INSERT_VIDEO_COMMAND, parsed);
+                  }}
+                >
+                  挿入
+                </button>
+                <form method="dialog">
+                  <button className="btn btn-ghost">キャンセル</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+        </div>
       </div>
     </div>
   );

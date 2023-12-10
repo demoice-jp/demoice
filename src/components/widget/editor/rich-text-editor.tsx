@@ -15,9 +15,11 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import clsx from "clsx";
 import { EditorState, LexicalEditor } from "lexical";
 import { ContentContext } from "@/components/contexts";
-import { ImageNode } from "@/components/widget/editor/nodes/ImageNode";
+import { ImageNode } from "@/components/widget/editor/nodes/image-node";
+import YouTubeNode from "@/components/widget/editor/nodes/you-tube-node";
 import ImagePlugin from "@/components/widget/editor/plugins/image-plugin";
 import ToolbarPlugin from "@/components/widget/editor/plugins/toolbar-plugin";
+import VideoPlugin from "@/components/widget/editor/plugins/video-plugin";
 import { validateUrl } from "@/components/widget/editor/utils";
 
 type RichTextEditorProp = {
@@ -102,7 +104,7 @@ export default function RichTextEditor({
             focus: "focused-embed-block",
           },
         },
-        nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, ImageNode],
+        nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, ImageNode, YouTubeNode],
       }}
     >
       <ContentContext.Provider value={contentContext}>
@@ -123,6 +125,7 @@ export default function RichTextEditor({
           <ListPlugin />
           <LinkPlugin validateUrl={validateUrl} />
           <ImagePlugin />
+          <VideoPlugin />
           <TabIndentationPlugin />
           <HistoryPlugin />
           <OnChangePlugin onChange={onEditorStateChange} />

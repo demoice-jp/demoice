@@ -185,6 +185,11 @@ body {
     & img {
       display: inline-block;
     }
+
+    & iframe {
+      display: inline-block;
+      max-width: 100%;
+    }
   }
 
   .focused-embed-block {
