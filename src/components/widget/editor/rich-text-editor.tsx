@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { MutableRefObject, useCallback, useEffect, useState } from "react";
 import { LinkNode } from "@lexical/link";
 import { ListNode, ListItemNode } from "@lexical/list";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -34,13 +34,22 @@ function onError(error: Error) {
   console.error(error);
 }
 
-function EditorRefPlugin({ editorRef }: { editorRef?: React.MutableRefObject<LexicalEditor | undefined> }) {
+function SetRefPlugin({
+  editorRef,
+  editorStateRef,
+}: {
+  editorRef?: React.MutableRefObject<LexicalEditor | undefined>;
+  editorStateRef?: MutableRefObject<EditorState | undefined>;
+}) {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (editorRef) {
       editorRef.current = editor;
+      if (editorStateRef) {
+        editorStateRef.current = editor.getEditorState();
+      }
     }
-  }, [editor, editorRef]);
+  }, [editor, editorRef, editorStateRef]);
   return null;
 }
 
@@ -129,7 +138,7 @@ export default function RichTextEditor({
           <TabIndentationPlugin />
           <HistoryPlugin />
           <OnChangePlugin onChange={onEditorStateChange} />
-          <EditorRefPlugin editorRef={editorRef} />
+          <SetRefPlugin editorRef={editorRef} editorStateRef={editorStateRef} />
         </div>
       </ContentContext.Provider>
     </LexicalComposer>
