@@ -1,24 +1,21 @@
 import React, { useCallback, useEffect, useRef } from "react";
+import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { DecoratorBlockNode, SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
-import { mergeRegister } from "@lexical/utils";
 import clsx from "clsx";
 import {
   $applyNodeReplacement,
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
-  DecoratorNode,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
-  KEY_DELETE_COMMAND,
+  ElementFormatType,
+  LexicalEditor,
   LexicalNode,
   NodeKey,
-  SerializedLexicalNode,
   Spread,
 } from "lexical";
 
@@ -27,6 +24,7 @@ export type ImagePayload = {
   src: string;
   width: number;
   height: number;
+  format?: ElementFormatType;
   key?: NodeKey;
 };
 
@@ -37,7 +35,7 @@ export type SerializedImageNode = Spread<
     width: number;
     height: number;
   },
-  SerializedLexicalNode
+  SerializedDecoratorBlockNode
 >;
 
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
@@ -49,13 +47,13 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
   return null;
 }
 
-export class ImageNode extends DecoratorNode<React.ReactElement> {
+export class ImageNode extends DecoratorBlockNode {
   __src: string;
   __altText: string;
   __width: number;
   __height: number;
-  constructor(src: string, altText: string, width: number, height: number, key?: NodeKey) {
-    super(key);
+  constructor(src: string, altText: string, width: number, height: number, format?: ElementFormatType, key?: NodeKey) {
+    super(format, key);
     this.__src = src;
     this.__altText = altText;
     this.__width = width;
@@ -67,21 +65,23 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
   }
 
   static clone(node: ImageNode): ImageNode {
-    return new ImageNode(node.__src, node.__altText, node.__width, node.__height, node.__key);
+    return new ImageNode(node.__src, node.__altText, node.__width, node.__height, node.__format, node.__key);
   }
 
   static importJSON(serializedNode: SerializedImageNode) {
-    const { src, altText, width, height } = serializedNode;
+    const { src, altText, width, height, format } = serializedNode;
     return $createImageNode({
       src,
       altText,
       width,
       height,
+      format,
     });
   }
 
   exportJSON(): SerializedImageNode {
     return {
+      ...super.exportJSON(),
       version: 1,
       type: "image",
       src: this.__src,
@@ -109,23 +109,20 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
     };
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement("span");
-    const theme = config.theme;
-    const className = theme.image;
-    if (className !== undefined) {
-      span.className = className;
-    }
-    return span;
-  }
-
-  updateDOM(): boolean {
+  updateDOM(): false {
     return false;
   }
 
-  decorate(): React.ReactElement {
+  decorate(_editor: LexicalEditor, config: EditorConfig): React.ReactElement {
+    const embedBlockTheme = config.theme.embedBlock || {};
+    const className = {
+      base: clsx(embedBlockTheme.base, config.theme.image),
+      focus: embedBlockTheme.focus || "",
+    };
     return (
       <ImageComponent
+        className={className}
+        format={this.__format}
         src={this.__src}
         altText={this.__altText}
         width={this.__width}
@@ -136,8 +133,8 @@ export class ImageNode extends DecoratorNode<React.ReactElement> {
   }
 }
 
-export function $createImageNode({ src, altText, width, height, key }: ImagePayload): ImageNode {
-  return $applyNodeReplacement(new ImageNode(src, altText, width, height, key));
+export function $createImageNode({ src, altText, width, height, format, key }: ImagePayload): ImageNode {
+  return $applyNodeReplacement(new ImageNode(src, altText, width, height, format, key));
 }
 
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
@@ -145,36 +142,28 @@ export function $isImageNode(node: LexicalNode | null | undefined): node is Imag
 }
 
 function ImageComponent({
+  className,
+  format,
+  nodeKey,
   altText,
   src,
   width,
   height,
-  nodeKey,
 }: {
+  className: Readonly<{
+    base: string;
+    focus: string;
+  }>;
+  format: ElementFormatType | null;
+  nodeKey: NodeKey;
   altText: string;
   src: string;
   width: number;
   height: number;
-  nodeKey: NodeKey;
 }) {
   const [editor] = useLexicalComposerContext();
   const imageRef = useRef<null | HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
-
-  const onDelete = useCallback(
-    (payload: KeyboardEvent) => {
-      if (isSelected && $isNodeSelection($getSelection())) {
-        payload.preventDefault();
-        const node = $getNodeByKey(nodeKey);
-        if ($isImageNode(node)) {
-          node.remove();
-        }
-      }
-      return false;
-    },
-    [isSelected, nodeKey],
-  );
-
   const onClick = useCallback(
     (payload: MouseEvent) => {
       const event = payload;
@@ -195,24 +184,13 @@ function ImageComponent({
   );
 
   useEffect(() => {
-    return mergeRegister(
-      editor.registerCommand<MouseEvent>(CLICK_COMMAND, onClick, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_DELETE_COMMAND, onDelete, COMMAND_PRIORITY_LOW),
-    );
-  }, [editor, onClick, onDelete]);
+    return editor.registerCommand<MouseEvent>(CLICK_COMMAND, onClick, COMMAND_PRIORITY_LOW);
+  }, [editor, onClick]);
 
   return (
-    <div draggable>
+    <BlockWithAlignableContents className={className} format={format} nodeKey={nodeKey}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className={clsx(isSelected && "focused")}
-        ref={imageRef}
-        alt={altText}
-        src={src}
-        width={width}
-        height={height}
-        draggable={false}
-      />
-    </div>
+      <img ref={imageRef} alt={altText} src={src} width={width} height={height} draggable={false} />
+    </BlockWithAlignableContents>
   );
 }

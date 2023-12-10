@@ -97,6 +97,10 @@ export default function RichTextEditor({
             olDepth: ["ol-depth1", "ol-depth2", "ol-depth3"],
           },
           image: "content-image",
+          embedBlock: {
+            base: "embed-block",
+            focus: "focused-embed-block",
+          },
         },
         nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, ImageNode],
       }}

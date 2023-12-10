@@ -179,13 +179,15 @@ body {
     list-style-type: lower-alpha;
   }
 
-  .content-image {
+  .embed-block {
+    @apply mb-3;
+
     & img {
-      @apply inline align-bottom;
-      &.focused {
-        @apply ring-4 ring-gray-500 dark:ring-gray-400;
-        cursor: grab;
-      }
+      display: inline-block;
     }
+  }
+
+  .focused-embed-block {
+    @apply ring-4 ring-gray-500 dark:ring-gray-400;
   }
 }
