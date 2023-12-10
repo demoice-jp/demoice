@@ -2,6 +2,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isListNode, ListNode, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { $isDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 import { $createHeadingNode, HeadingTagType, $isHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
 import { mergeRegister, $findMatchingParent, $getNearestNodeOfType } from "@lexical/utils";
@@ -9,6 +10,7 @@ import clsx from "clsx";
 import {
   $createParagraphNode,
   $getSelection,
+  $isNodeSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
   CAN_REDO_COMMAND,
@@ -24,6 +26,9 @@ import {
   OUTDENT_CONTENT_COMMAND,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
+  $isElementNode,
+  ElementFormatType,
+  FORMAT_ELEMENT_COMMAND,
 } from "lexical";
 import { useContentContext } from "@/components/hooks";
 import { INSERT_IMAGE_COMMAND, uploadImage } from "@/components/widget/editor/plugins/image-plugin";
@@ -35,6 +40,7 @@ export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const { id: contentId } = useContentContext();
   const [blockType, setBlockType] = useState<keyof typeof BLOCK_TYPES>("paragraph");
+  const [elementFormat, setElementFormat] = useState<ElementFormatType>("left");
 
   const [textFormat, setTextFormat] = useState({
     bold: false,
@@ -64,6 +70,8 @@ export default function ToolbarPlugin() {
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
+
+    let node: LexicalNode | null = null;
     if ($isRangeSelection(selection)) {
       const anchorNode: LexicalNode = selection.anchor.getNode();
       let element =
@@ -88,7 +96,7 @@ export default function ToolbarPlugin() {
         strikethrough: selection.hasFormat("strikethrough"),
       });
 
-      const node = getSelectedNode(selection);
+      node = getSelectedNode(selection);
       const parent = node.getParent();
       if ($isLinkNode(parent)) {
         setIsLink(true);
@@ -115,6 +123,27 @@ export default function ToolbarPlugin() {
           }
         }
       }
+    } else if ($isNodeSelection(selection)) {
+      node = selection.getNodes()[0];
+    }
+
+    if (node) {
+      const matchingParent = $findMatchingParent(
+        node,
+        (parentNode) => $isElementNode(parentNode) && !parentNode.isInline(),
+      );
+      const parent = node.getParent();
+      setElementFormat(
+        $isElementNode(matchingParent)
+          ? matchingParent.getFormatType()
+          : $isElementNode(node)
+            ? node.getFormatType()
+            : $isDecoratorBlockNode(node)
+              ? node.__format
+              : $isElementNode(parent)
+                ? parent.getFormatType()
+                : "left",
+      );
     }
   }, [editor, changeLinkUrl]);
 
@@ -297,6 +326,7 @@ export default function ToolbarPlugin() {
             <span className="material-symbols-outlined">format_indent_decrease</span>
           </button>
         </div>
+        <FormatElementDropDown editor={editor} formatType={elementFormat} />
         <div className="divider divider-horizontal mx-0.5 hidden md:flex" />
       </div>
       <div className="flex">
@@ -580,6 +610,55 @@ function BlockFormatDropDown({ editor, blockType }: { editor: LexicalEditor; blo
               >
                 <span className="material-symbols-outlined">{type.icon}</span>
                 {type.name}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+const ELEMENT_FORMAT: {
+  [key: string]: {
+    text: string;
+    icon: string;
+  };
+} = {
+  left: {
+    text: "左揃え",
+    icon: "format_align_left",
+  },
+  center: {
+    text: "中央揃え",
+    icon: "format_align_center",
+  },
+  right: {
+    text: "右揃え",
+    icon: "format_align_right",
+  },
+};
+
+function FormatElementDropDown({ editor, formatType }: { editor: LexicalEditor; formatType: ElementFormatType }) {
+  const format = ELEMENT_FORMAT[formatType] || ELEMENT_FORMAT.left;
+
+  return (
+    <div className="dropdown">
+      <button tabIndex={0} role="button" className="btn btn-ghost btn-xs">
+        <span className="material-symbols-outlined">{format.icon}</span>
+        <span className="material-symbols-outlined -ml-2">expand_more</span>
+      </button>
+      <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+        {Object.entries(ELEMENT_FORMAT).map(([key, format]) => {
+          return (
+            <li key={key}>
+              <button
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, key as ElementFormatType);
+                }}
+              >
+                <span className="material-symbols-outlined">{format.icon}</span>
+                {format.text}
               </button>
             </li>
           );
