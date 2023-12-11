@@ -17,6 +17,7 @@ import { EditorState, LexicalEditor } from "lexical";
 import { ContentContext } from "@/components/contexts";
 import { ImageNode } from "@/components/widget/editor/nodes/image-node";
 import YouTubeNode from "@/components/widget/editor/nodes/you-tube-node";
+import AutoSavePlugin from "@/components/widget/editor/plugins/auto-save-plugin";
 import ImagePlugin from "@/components/widget/editor/plugins/image-plugin";
 import ToolbarPlugin from "@/components/widget/editor/plugins/toolbar-plugin";
 import VideoPlugin from "@/components/widget/editor/plugins/video-plugin";
@@ -102,6 +103,7 @@ export default function RichTextEditor({
           },
           link: "link-basic",
           list: {
+            listitem: "list-item",
             nested: {
               listitem: "nested-list-item",
             },
@@ -138,6 +140,7 @@ export default function RichTextEditor({
           <TabIndentationPlugin />
           <HistoryPlugin />
           <OnChangePlugin onChange={onEditorStateChange} />
+          <AutoSavePlugin />
           <SetRefPlugin editorRef={editorRef} editorStateRef={editorStateRef} />
         </div>
       </ContentContext.Provider>

@@ -7,6 +7,7 @@ import { $createHeadingNode, HeadingTagType, $isHeadingNode, $createQuoteNode } 
 import { $setBlocksType } from "@lexical/selection";
 import { mergeRegister, $findMatchingParent, $getNearestNodeOfType } from "@lexical/utils";
 import clsx from "clsx";
+import dayjs from "dayjs";
 import {
   $createParagraphNode,
   $getSelection,
@@ -29,8 +30,10 @@ import {
   $isElementNode,
   ElementFormatType,
   FORMAT_ELEMENT_COMMAND,
+  COMMAND_PRIORITY_HIGH,
 } from "lexical";
 import { useContentContext } from "@/components/hooks";
+import { AUTO_SAVED_COMMAND, AutoSavePayload } from "@/components/widget/editor/plugins/auto-save-plugin";
 import { INSERT_IMAGE_COMMAND, uploadImage } from "@/components/widget/editor/plugins/image-plugin";
 import { INSERT_VIDEO_COMMAND, parseVideoUrl } from "@/components/widget/editor/plugins/video-plugin";
 import { getSelectedNode, sanitizeUrl, validateUrl } from "@/components/widget/editor/utils";
@@ -62,6 +65,8 @@ export default function ToolbarPlugin() {
 
   const [videoUrl, setVideoUrl] = useState("");
   const [videoUrlError, setVideoUrlError] = useState("");
+
+  const [autoSaveState, setAutoSaveState] = useState<AutoSavePayload | null>(null);
 
   const changeLinkUrl = useCallback((url: string) => {
     setLinkUrl(url);
@@ -212,6 +217,14 @@ export default function ToolbarPlugin() {
         },
         COMMAND_PRIORITY_LOW,
       ),
+      editor.registerCommand(
+        AUTO_SAVED_COMMAND,
+        (payload) => {
+          setAutoSaveState(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
     );
   }, [editor, $updateToolbar]);
 
@@ -329,7 +342,7 @@ export default function ToolbarPlugin() {
         <FormatElementDropDown editor={editor} formatType={elementFormat} />
         <div className="divider divider-horizontal mx-0.5 hidden md:flex" />
       </div>
-      <div className="flex">
+      <div className="flex grow">
         <div className="flex gap-[0.1em]">
           <div className="dropdown">
             <div
@@ -500,6 +513,32 @@ export default function ToolbarPlugin() {
             </div>
           </dialog>
         </div>
+        <div className="flex grow items-center justify-end">
+          <div
+            className="tooltip tooltip-bottom before:translate-x-[-90%]"
+            data-tip={
+              autoSaveState == null
+                ? "30秒おきに自動保存されます"
+                : autoSaveState.success
+                  ? `${dayjs(autoSaveState.updated).format("H時m分s秒に自動保存されました")}`
+                  : "自動保存に失敗しました"
+            }
+          >
+            <button
+              disabled
+              className={clsx(
+                "btn btn-ghost btn-xs",
+                autoSaveState == null
+                  ? "disabled:text-current"
+                  : autoSaveState.success
+                    ? "disabled:text-green-600"
+                    : "disabled:text-red-700",
+              )}
+            >
+              <span className="material-symbols-outlined">check_circle</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -643,12 +682,12 @@ function FormatElementDropDown({ editor, formatType }: { editor: LexicalEditor; 
   const format = ELEMENT_FORMAT[formatType] || ELEMENT_FORMAT.left;
 
   return (
-    <div className="dropdown">
+    <div className="dropdown max-sm:dropdown-end">
       <button tabIndex={0} role="button" className="btn btn-ghost btn-xs">
         <span className="material-symbols-outlined">{format.icon}</span>
         <span className="material-symbols-outlined -ml-2">expand_more</span>
       </button>
-      <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+      <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
         {Object.entries(ELEMENT_FORMAT).map(([key, format]) => {
           return (
             <li key={key}>

@@ -6,10 +6,10 @@ import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
 import { deletePolicyDraft, DeletePolicyDraftState } from "@/lib/action/policy-draft-action";
-import { PolicyDraftSummary } from "@/lib/data/policy-draft";
+import { ContentSummary } from "@/lib/data/content";
 
 type WritingDraftsProp = {
-  writingDrafts: PolicyDraftSummary[];
+  writingDrafts: ContentSummary[];
 };
 
 export default function WritingDrafts({ writingDrafts }: WritingDraftsProp) {
@@ -35,7 +35,7 @@ function WritingDraft({
   deleteDispatch,
   error,
 }: {
-  writingDraft: PolicyDraftSummary;
+  writingDraft: ContentSummary;
   deleteDispatch: (payload: FormData) => void;
   error: DeletePolicyDraftState["error"];
 }) {

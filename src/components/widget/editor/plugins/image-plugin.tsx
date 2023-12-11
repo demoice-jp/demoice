@@ -3,7 +3,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { mergeRegister, $insertNodeToNearestRoot } from "@lexical/utils";
 import Compressor from "compressorjs";
 import { COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from "lexical";
-import { ImagePostError, ImagePostResponse } from "@/app/api/media/content/[id]/image/route";
+import { ImagePostError, ImagePostResponse } from "@/app/api/content/[id]/media/image/route";
 import { $createImageNode, ImageNode, ImagePayload } from "@/components/widget/editor/nodes/image-node";
 
 export type InsertImagePayload = Readonly<ImagePayload>;
@@ -64,7 +64,7 @@ export function uploadImage(contentId: string, imageFile: File): Promise<UploadI
         }
 
         const [response, size] = await Promise.all([
-          fetch(`/api/media/content/${contentId}/image`, {
+          fetch(`/api/content/${contentId}/media/image`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

@@ -101,7 +101,7 @@ body {
   }
 
   ul li {
-    @apply list-disc list-inside ml-3;
+    @apply list-disc list-inside;
   }
 
   ul ul li {
@@ -113,7 +113,7 @@ body {
   }
 
   ol li {
-    @apply list-decimal list-inside ml-3;
+    @apply list-decimal list-inside;
   }
 
   input::placeholder {
@@ -169,6 +169,10 @@ body {
 
   .nested-list-item {
     @apply list-none;
+  }
+
+  .list-item {
+    @apply ml-3;
   }
 
   .ol-depth2 li:not(.nested-list-item) {

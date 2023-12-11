@@ -4,10 +4,10 @@ import { useFormState } from "react-dom";
 import WritingDrafts from "@/components/component/writing-drafts";
 import FormError from "@/components/widget/form-error";
 import { startPolicyDraft } from "@/lib/action/policy-draft-action";
-import { PolicyDraftSummary } from "@/lib/data/policy-draft";
+import { ContentSummary } from "@/lib/data/content";
 
 type CreatePolicyProp = {
-  writingDrafts: PolicyDraftSummary[];
+  writingDrafts: ContentSummary[];
 };
 
 export default function CreatePolicy({ writingDrafts }: CreatePolicyProp) {

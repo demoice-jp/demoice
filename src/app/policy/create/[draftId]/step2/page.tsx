@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import PolicyCreateSteps from "@/components/component/policy-create-steps";
 import CreatePolicyStep2 from "@/components/page/create-policy-step2";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
-import { getPolicyDraft } from "@/lib/data/policy-draft";
+import { getContent } from "@/lib/data/content";
 
 type PageProp = {
   params: {
@@ -12,7 +12,7 @@ type PageProp = {
 };
 
 export default async function Page({ params: { draftId } }: PageProp) {
-  const draft = await getPolicyDraft(draftId);
+  const draft = await getContent(draftId);
   if (!draft) {
     redirect("/policy/create");
   }
