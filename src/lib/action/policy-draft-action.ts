@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
-import { ContentSummary, fillContent } from "@/lib/data/content";
+import { ContentTitle, fillContent } from "@/lib/data/content";
 import prisma from "@/lib/orm/client";
 
 const MAX_DRAFT_COUNT = 10;
@@ -13,9 +13,9 @@ const DeleteSchema = z.object({
   id: z.string().uuid(),
 });
 
-const FillSummarySchema = z.object({
+const FillTitleSchema = z.object({
   id: z.string().uuid(),
-  summary: z.string().min(5).max(60),
+  title: z.string().min(5).max(60),
 });
 
 export type StartPolicyDraftState = {
@@ -23,16 +23,16 @@ export type StartPolicyDraftState = {
 };
 
 export type DeletePolicyDraftState = {
-  policyDrafts: ContentSummary[];
+  policyDrafts: ContentTitle[];
   error?: {
     draftId: string;
     message: string;
   };
 };
 
-type FillPolicyDraftSummaryState = {
+type FillPolicyDraftTitleState = {
   errors?: {
-    summary?: string[];
+    title?: string[];
   };
   message?: string;
 };
@@ -116,7 +116,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
   const policyDrafts = await prisma.content.findMany({
     select: {
       id: true,
-      summary: true,
+      title: true,
       authorId: true,
       contentString: true,
     },
@@ -137,16 +137,16 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
   }
 }
 
-export async function fillPolicyDraftSummary(
-  prevState: FillPolicyDraftSummaryState,
+export async function fillPolicyDraftTitle(
+  prevState: FillPolicyDraftTitleState,
   formData: FormData,
-): Promise<FillPolicyDraftSummaryState> {
+): Promise<FillPolicyDraftTitleState> {
   const session = await auth();
   if (!session?.valid) {
     redirectToLogin();
   }
 
-  const parsedInput = FillSummarySchema.safeParse(Object.fromEntries(formData));
+  const parsedInput = FillTitleSchema.safeParse(Object.fromEntries(formData));
   if (!parsedInput.success) {
     if (parsedInput.error.flatten().fieldErrors.id) {
       redirectToCreateMain();
@@ -163,7 +163,7 @@ export async function fillPolicyDraftSummary(
         id: true,
       },
       data: {
-        summary: parsedInput.data.summary,
+        title: parsedInput.data.title,
       },
       where: {
         id: parsedInput.data.id,

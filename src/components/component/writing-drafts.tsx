@@ -6,10 +6,10 @@ import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
 import { deletePolicyDraft, DeletePolicyDraftState } from "@/lib/action/policy-draft-action";
-import { ContentSummary } from "@/lib/data/content";
+import { ContentTitle } from "@/lib/data/content";
 
 type WritingDraftsProp = {
-  writingDrafts: ContentSummary[];
+  writingDrafts: ContentTitle[];
 };
 
 export default function WritingDrafts({ writingDrafts }: WritingDraftsProp) {
@@ -35,20 +35,20 @@ function WritingDraft({
   deleteDispatch,
   error,
 }: {
-  writingDraft: ContentSummary;
+  writingDraft: ContentTitle;
   deleteDispatch: (payload: FormData) => void;
   error: DeletePolicyDraftState["error"];
 }) {
   const href = `/policy/create/${writingDraft.id}/step1`;
   const modalId = `delete_modal_${writingDraft.id}`;
-  const summary = writingDraft.summary || "概要の記載がありません";
+  const title = writingDraft.title || "概要の記載がありません";
 
   return (
     <form className="card w-full flex-row p-3" action={deleteDispatch}>
       <input type="hidden" name="id" value={writingDraft.id} />
       <Link href={href} className="grow">
         <div className="flex flex-col gap-1">
-          <span className={clsx(!writingDraft.summary && "text-gray-500 dark:text-gray-400")}>{summary}</span>
+          <span className={clsx(!writingDraft.title && "text-gray-500 dark:text-gray-400")}>{title}</span>
           {writingDraft.contentString ? (
             <span>{writingDraft.contentString}</span>
           ) : (
@@ -80,7 +80,7 @@ function WritingDraft({
       </div>
       <dialog id={modalId} className="modal">
         <div className="modal-box">
-          <p>本当に「{`${summary}`}」を削除してもよろしいでしょうか？</p>
+          <p>本当に「{`${title}`}」を削除してもよろしいでしょうか？</p>
           {error?.draftId === writingDraft.id && <FormError messages={[error!.message]} />}
           <div className="modal-footer-buttons">
             <SubmitCancelButton

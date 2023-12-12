@@ -47,9 +47,7 @@ export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
           }
         }}
       >
-        <p className="text-xl">
-          <label htmlFor="policy-summary">政策の本文を記載してください。</label>
-        </p>
+        <p className="text-xl">政策の本文を記載してください。 </p>
         <div className="flex justify-between">
           <Link href={`/policy/create/${draft.id}/step1`} className="btn">
             戻る

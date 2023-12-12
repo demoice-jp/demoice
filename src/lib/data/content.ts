@@ -7,9 +7,9 @@ import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
 
-export type ContentSummary = Pick<Content, "id" | "summary" | "authorId" | "contentString">;
+export type ContentTitle = Pick<Content, "id" | "title" | "authorId" | "contentString">;
 
-export const getContentSummaries = cache(async (): Promise<ContentSummary[]> => {
+export const getContentSummaries = cache(async (): Promise<ContentTitle[]> => {
   const session = await auth();
   if (!session?.valid) {
     return [];
@@ -18,7 +18,7 @@ export const getContentSummaries = cache(async (): Promise<ContentSummary[]> => 
   return prisma.content.findMany({
     select: {
       id: true,
-      summary: true,
+      title: true,
       authorId: true,
       contentString: true,
     },

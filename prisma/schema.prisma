@@ -50,7 +50,7 @@ model Content {
   id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   author        User      @relation(fields: [authorId], references: [id])
   authorId      String    @map("author_id") @db.Uuid
-  summary       String?   @db.VarChar(60)
+  title         String?   @db.VarChar(60)
   content       String?
   contentHtml   String?   @map("content_html")
   contentString String?   @map("content_string")
