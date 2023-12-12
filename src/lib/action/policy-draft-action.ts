@@ -200,5 +200,5 @@ export async function fillPolicyDraftContent(
     }
   }
 
-  return {};
+  redirect(`/policy/create/${result.id}/step3`);
 }

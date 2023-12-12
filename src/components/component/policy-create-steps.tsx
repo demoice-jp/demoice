@@ -1,18 +1,21 @@
 import clsx from "clsx";
 
 type PolicyCreateStepsProp = {
-  currentStep: 1 | 2 | 3;
+  currentStep: 1 | 2 | 3 | 4;
 };
 
 const STEPS = [
   {
-    name: "概要",
+    name: "タイトル",
   },
   {
-    name: "本文記載",
+    name: "本文",
   },
   {
-    name: "画像添付",
+    name: "見出し画像",
+  },
+  {
+    name: "確認",
   },
 ];
 

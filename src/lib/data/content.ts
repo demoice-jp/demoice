@@ -72,6 +72,7 @@ const FillContentSchema = z.object({
 export type FillContentResult =
   | {
       success: true;
+      id: string;
       updated: string;
     }
   | {
@@ -142,6 +143,7 @@ export const fillContent = async (contentData: unknown): Promise<FillContentResu
 
   return {
     success: true,
+    id: parsedInput.data.id,
     updated: dayjs(new Date()).toISOString(),
   };
 };

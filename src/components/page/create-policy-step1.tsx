@@ -25,7 +25,7 @@ export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {
     <form className="flex flex-col gap-1.5 w-screen px-6 md:w-[36rem]" action={dispatch}>
       <input type="hidden" name="id" value={draft.id} />
       <p className="text-xl">
-        <label htmlFor="policy-summary">政策の概要を記載してください。</label>
+        <label htmlFor="policy-summary">政策のタイトルを記載してください。</label>
       </p>
       <input
         id="policy-summary"

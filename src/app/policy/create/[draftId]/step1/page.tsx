@@ -19,7 +19,7 @@ export default async function Page({ params: { draftId } }: PageProp) {
 
   return (
     <>
-      <Breadcrumbs interPages={[{ name: "新規投稿", url: "/policy/create" }]} currentPage="概要記載" />
+      <Breadcrumbs interPages={[{ name: "新規投稿", url: "/policy/create" }]} currentPage="タイトル" />
       <main className="flex-col-center">
         <section className="flex-col-center justify-center">
           <PolicyCreateSteps currentStep={1} />
