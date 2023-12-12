@@ -8,11 +8,11 @@ import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftTitle } from "@/lib/action/policy-draft-action";
 
-type CreatePolicyStep1Prop = {
+type CreatePolicyTitleProp = {
   draft: Content;
 };
 
-export default function CreatePolicyStep1({ draft }: CreatePolicyStep1Prop) {
+export default function CreatePolicyTitle({ draft }: CreatePolicyTitleProp) {
   const [title, setTitle] = useState(draft.title || "");
 
   const onTitleChange: React.ChangeEventHandler<HTMLInputElement> = useCallback((e) => {

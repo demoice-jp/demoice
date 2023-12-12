@@ -39,7 +39,7 @@ function WritingDraft({
   deleteDispatch: (payload: FormData) => void;
   error: DeletePolicyDraftState["error"];
 }) {
-  const href = `/policy/create/${writingDraft.id}/step1`;
+  const href = `/policy/create/${writingDraft.id}/title`;
   const modalId = `delete_modal_${writingDraft.id}`;
   const title = writingDraft.title || "概要の記載がありません";
 

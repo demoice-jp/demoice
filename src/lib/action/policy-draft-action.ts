@@ -77,7 +77,7 @@ export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
     },
   });
 
-  redirect(`/policy/create/${newDraft.id}/step1`);
+  redirect(`/policy/create/${newDraft.id}/title`);
 }
 
 export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formData: FormData) {
@@ -177,7 +177,7 @@ export async function fillPolicyDraftTitle(
     };
   }
 
-  redirect(`/policy/create/${parsedInput.data.id}/step2`);
+  redirect(`/policy/create/${parsedInput.data.id}/content`);
 }
 
 export async function fillPolicyDraftContent(
@@ -200,5 +200,5 @@ export async function fillPolicyDraftContent(
     }
   }
 
-  redirect(`/policy/create/${result.id}/step3`);
+  redirect(`/policy/create/${result.id}/image`);
 }

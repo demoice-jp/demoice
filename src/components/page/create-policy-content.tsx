@@ -11,11 +11,11 @@ import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftContent } from "@/lib/action/policy-draft-action";
 
-type CreatePolicyStep2Prop = {
+type CreatePolicyContentProp = {
   draft: Content;
 };
 
-export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
+export default function CreatePolicyContent({ draft }: CreatePolicyContentProp) {
   const editorRef = useRef<LexicalEditor>();
   const editorStateRef = useRef<EditorState>();
 
@@ -49,7 +49,7 @@ export default function CreatePolicyStep2({ draft }: CreatePolicyStep2Prop) {
       >
         <p className="text-xl">政策の本文を記載してください。 </p>
         <div className="flex justify-between">
-          <Link href={`/policy/create/${draft.id}/step1`} className="btn">
+          <Link href={`/policy/create/${draft.id}/title`} className="btn">
             戻る
           </Link>
           <SubmitButton type="submit" className="btn btn-primary">
