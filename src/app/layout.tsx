@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${notoSansJP.className} min-h-screen h-full text-gray-900 dark:text-gray-300 bg-gray-100 dark:bg-gray-900`}
+        className={`${notoSansJP.className} min-h-screen h-full text-gray-900 dark:text-gray-300 bg-gray-100 dark:bg-gray-950`}
       >
         <Header />
         {children}

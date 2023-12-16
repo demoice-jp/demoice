@@ -21,7 +21,7 @@ const STEPS = [
 
 export default function PolicyCreateSteps({ currentStep }: PolicyCreateStepsProp) {
   return (
-    <ul className="steps mb-4">
+    <ul className="steps mb-4 -mx-10 scale-75 md:mx-0 md:scale-100">
       {STEPS.map((step, idx) => (
         <li key={step.name} className={clsx("step", idx < currentStep && "step-primary")}>
           <span className="w-28">{step.name}</span>

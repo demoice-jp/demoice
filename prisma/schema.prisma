@@ -54,7 +54,7 @@ model Content {
   content       String?
   contentHtml   String?   @map("content_html")
   contentString String?   @map("content_string")
-  image         String?
+  image         Json?
   createdDate   DateTime  @default(now()) @map("created_date") @db.Timestamptz(0)
   commited      Boolean   @default(false)
   comitDate     DateTime? @map("comit_date") @db.Timestamptz(0)

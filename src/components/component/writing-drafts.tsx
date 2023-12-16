@@ -56,7 +56,7 @@ function WritingDraft({
           )}
         </div>
       </Link>
-      <div className="dropdown">
+      <div className="dropdown dropdown-end">
         <div tabIndex={0} role="button" className="btn btn-ghost">
           <span className="material-symbols-outlined">menu</span>
         </div>

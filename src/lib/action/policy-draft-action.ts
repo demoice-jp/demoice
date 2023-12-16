@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import { ContentTitle, fillContent } from "@/lib/data/content";
+import { saveContentImage } from "@/lib/data/image";
 import prisma from "@/lib/orm/client";
 
 const MAX_DRAFT_COUNT = 10;
@@ -16,6 +17,17 @@ const DeleteSchema = z.object({
 const FillTitleSchema = z.object({
   id: z.string().uuid(),
   title: z.string().min(5).max(60),
+});
+
+const FillImageSchema = z.object({
+  id: z.string().uuid(),
+  image: z.string().max(2_000_000).nullable(),
+  size: z
+    .object({
+      width: z.number(),
+      height: z.number(),
+    })
+    .nullish(),
 });
 
 export type StartPolicyDraftState = {
@@ -38,6 +50,10 @@ type FillPolicyDraftTitleState = {
 };
 
 type FillPolicyDraftContentState = {
+  message?: string;
+};
+
+type FillPolicyDraftImageState = {
   message?: string;
 };
 
@@ -201,4 +217,72 @@ export async function fillPolicyDraftContent(
   }
 
   redirect(`/policy/create/${result.id}/image`);
+}
+
+export async function fillPolicyDraftImage(
+  prefState: FillPolicyDraftImageState,
+  imageData: unknown,
+): Promise<FillPolicyDraftImageState> {
+  const session = await auth();
+  if (!session?.valid) {
+    redirectToLogin();
+  }
+
+  const parsedInput = FillImageSchema.safeParse(imageData);
+  if (!parsedInput.success) {
+    return {
+      message: parsedInput.error.errors[0].message,
+    };
+  }
+
+  if (!parsedInput.data.image) {
+    return {};
+  }
+
+  if (!parsedInput.data.size) {
+    return {
+      message: "画像サイズの指定がありません",
+    };
+  }
+
+  const content = await prisma.content.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      id: parsedInput.data.id,
+      authorId: session.user!.accountId,
+    },
+  });
+
+  if (!content) {
+    return {
+      message: "画像の添付先が見つかりません",
+    };
+  }
+
+  const saveResult = await saveContentImage(content.id, parsedInput.data.image, ["jpg"]);
+  if (!saveResult.success) {
+    return {
+      message: saveResult.message,
+    };
+  }
+
+  await prisma.content.update({
+    select: {
+      id: true,
+    },
+    where: {
+      id: content.id,
+    },
+    data: {
+      image: {
+        src: saveResult.location,
+        width: parsedInput.data.size.width,
+        height: parsedInput.data.size.height,
+      },
+    },
+  });
+
+  return {};
 }
