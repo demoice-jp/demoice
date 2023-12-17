@@ -2,6 +2,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { useFormState } from "react-dom";
+import ContentImage from "@/components/widget/content-image";
 import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
@@ -44,19 +45,27 @@ function WritingDraft({
   const title = writingDraft.title || "概要の記載がありません";
 
   return (
-    <form className="card w-full flex-row p-3" action={deleteDispatch}>
+    <form className="card w-full flex-row h-32 overflow-hidden" action={deleteDispatch}>
       <input type="hidden" name="id" value={writingDraft.id} />
-      <Link href={href} className="grow">
-        <div className="flex flex-col gap-1">
-          <span className={clsx(!writingDraft.title && "text-gray-500 dark:text-gray-400")}>{title}</span>
-          {writingDraft.contentString ? (
-            <span>{writingDraft.contentString}</span>
-          ) : (
-            <span className="text-sm text-gray-500 dark:text-gray-400">内容の記載がありません</span>
-          )}
+      <Link href={href} className="flex flex-1 overflow-hidden">
+        <div className="flex h-full w-full overflow-hidden">
+          <ContentImage contentImage={writingDraft.image} className="h-full w-auto" />
+          <div className="flex flex-col gap-1 py-3 pl-3 overflow-hidden">
+            <span className={clsx("text-lg truncate", !writingDraft.title && "text-gray-500 dark:text-gray-400")}>
+              {title}
+            </span>
+            {writingDraft.contentString ? (
+              <span>
+                {writingDraft.contentString.substring(0, 50)}
+                {writingDraft.contentString.length > 50 && "..."}
+              </span>
+            ) : (
+              <span className="text-sm text-gray-500 dark:text-gray-400">内容の記載がありません</span>
+            )}
+          </div>
         </div>
       </Link>
-      <div className="dropdown dropdown-end">
+      <div className="dropdown dropdown-end flex-initial">
         <div tabIndex={0} role="button" className="btn btn-ghost">
           <span className="material-symbols-outlined">menu</span>
         </div>

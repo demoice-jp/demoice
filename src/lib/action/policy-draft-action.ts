@@ -137,6 +137,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
       title: true,
       authorId: true,
       contentString: true,
+      image: true,
     },
     where: {
       authorId: session.user!.accountId,

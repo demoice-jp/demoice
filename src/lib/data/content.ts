@@ -7,7 +7,7 @@ import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
 
-export type ContentTitle = Pick<Content, "id" | "title" | "authorId" | "contentString">;
+export type ContentTitle = Pick<Content, "id" | "title" | "authorId" | "contentString" | "image">;
 
 export const getContentSummaries = cache(async (): Promise<ContentTitle[]> => {
   const session = await auth();
@@ -21,6 +21,7 @@ export const getContentSummaries = cache(async (): Promise<ContentTitle[]> => {
       title: true,
       authorId: true,
       contentString: true,
+      image: true,
     },
     where: {
       authorId: session.user!.accountId,

@@ -67,7 +67,7 @@ export async function saveContentImage(
   try {
     const createFile = new PutObjectCommand({
       Bucket: bucketName,
-      Key: `${contentId}/${fileName}`,
+      Key: `content-image/${contentId}/${fileName}`,
       Body: Buffer.from(await blob.arrayBuffer()),
       ContentType: blob.type,
     });
@@ -82,6 +82,6 @@ export async function saveContentImage(
 
   return {
     success: true,
-    location: `/media/${contentId}/${fileName}`,
+    location: `/media/content-image/${contentId}/${fileName}`,
   };
 }

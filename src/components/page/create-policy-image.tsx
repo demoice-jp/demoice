@@ -6,21 +6,11 @@ import clsx from "clsx";
 import Cropper from "cropperjs";
 import Link from "next/link";
 import { useFormState } from "react-dom";
-import z from "zod";
+import { ImageSchema } from "@/components/widget/content-image";
 import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
 import { fillPolicyDraftImage } from "@/lib/action/policy-draft-action";
 import "cropperjs/dist/cropper.css";
-
-const ImageSchema = z
-  .object({
-    src: z.string(),
-    width: z.number(),
-    height: z.number(),
-  })
-  .nullable();
-
-type ImageSchema = z.infer<typeof ImageSchema>;
 
 type CreatePolicyImageProp = {
   draft: Content;
