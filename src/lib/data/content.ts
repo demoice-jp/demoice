@@ -46,7 +46,7 @@ export const getContent = cache(async (id: string) => {
 });
 
 const FillContentSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().length(21),
   content: z
     .string()
     .min(1, "本文を記載してください。")

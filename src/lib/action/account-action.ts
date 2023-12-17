@@ -2,6 +2,7 @@
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { nanoid } from "nanoid";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth, signOut } from "@/lib/auth/auth";
@@ -114,6 +115,7 @@ export async function createAccount(prevState: CreateAccountState, formData: For
 
     await prisma.user.create({
       data: {
+        id: nanoid(),
         userName: parsedInput.data.userName,
         gender: parsedInput.data.gender,
         birthDate: parsedInput.data.birthDate,

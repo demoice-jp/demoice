@@ -1,5 +1,5 @@
-import { randomUUID } from "crypto";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { nanoid } from "nanoid";
 
 let s3Client: S3Client;
 if (process.env.MINIO_PASSWORD && process.env.MINIO_API_PORT) {
@@ -55,7 +55,7 @@ export async function saveContentImage(
       };
     }
 
-    fileName = `${randomUUID()}.${extension}`;
+    fileName = `${nanoid()}.${extension}`;
   } catch (e) {
     return {
       success: false,

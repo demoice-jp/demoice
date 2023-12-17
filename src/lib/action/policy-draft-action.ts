@@ -1,5 +1,6 @@
 "use server";
 
+import { nanoid } from "nanoid";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
@@ -11,16 +12,16 @@ import prisma from "@/lib/orm/client";
 const MAX_DRAFT_COUNT = 10;
 
 const DeleteSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().length(21),
 });
 
 const FillTitleSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().length(21),
   title: z.string().min(5).max(60),
 });
 
 const FillImageSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().length(21),
   image: z.string().max(2_000_000).nullable(),
   size: z
     .object({
@@ -89,6 +90,7 @@ export async function startPolicyDraft(): Promise<StartPolicyDraftState> {
 
   const newDraft = await prisma.content.create({
     data: {
+      id: nanoid(),
       authorId: session.user!.accountId,
     },
   });
