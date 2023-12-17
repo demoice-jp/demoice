@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import DemoiceLogo from "@/asset/demoice.svg";
@@ -9,7 +10,7 @@ export default async function Header() {
   const user = await getUser();
 
   return (
-    <header className="sticky h-14 top-0 flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-white border-b border-gray-200 text-sm py-3 dark:bg-gray-800 dark:border-gray-700">
+    <header className="sticky h-14 top-0 flex flex-nowrap sm:justify-start z-50 w-full bg-white border-b border-gray-200 text-sm py-3 dark:bg-gray-800 dark:border-gray-700">
       <nav
         className="relative max-w-[85rem] w-full mx-auto px-4 flex items-center justify-between sm:px-6 lg:px-8"
         aria-label="Global"
@@ -21,9 +22,14 @@ export default async function Header() {
         </div>
         <HideHeaderItems>
           <div className="flex gap-x-4">
-            <Link className="btn btn-primary btn-sm" href="/policy/create">
-              新規投稿
-            </Link>
+            <div className={clsx("flex items-center", !user && "hidden md:flex")}>
+              <Link className="btn btn-primary btn-sm min-h-[2.25rem] h-9" href="/policy/create">
+                <span className="hidden md:inline">新規投稿</span>
+                <div className="md:hidden">
+                  <span className="material-symbols-outlined">add</span>
+                </div>
+              </Link>
+            </div>
             <AccountHeader user={user} />
           </div>
         </HideHeaderItems>
