@@ -358,18 +358,34 @@ export async function commitPolicyDraft(
 
     await deleteUnlinkImages(parsedInput.data.id, JSON.stringify({ content: content.content, image: content.image }));
 
-    await prisma.content.update({
-      select: {
-        id: true,
-      },
-      where: {
-        id: parsedInput.data.id,
-        authorId: session.user!.accountId,
-        commitDate: null,
-      },
-      data: {
-        commitDate: new Date(),
-      },
+    await prisma.$transaction(async (prisma) => {
+      const content = await prisma.content.update({
+        select: {
+          id: true,
+        },
+        where: {
+          id: parsedInput.data.id,
+          authorId: session.user!.accountId,
+          commitDate: null,
+        },
+        data: {
+          commitDate: new Date(),
+        },
+      });
+
+      const newPolicyId = nanoid();
+      await prisma.policy.create({
+        data: {
+          id: newPolicyId,
+          contentId: content.id,
+          policyVersion: {
+            create: {
+              version: 1,
+              contentId: content.id,
+            },
+          },
+        },
+      });
     });
   } catch (e) {
     console.error(e);
@@ -378,5 +394,5 @@ export async function commitPolicyDraft(
     };
   }
 
-  return {};
+  redirect(`/policy/create/${parsedInput.data.id}/complete`);
 }

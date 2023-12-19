@@ -47,17 +47,39 @@ enum Provider {
 }
 
 model Content {
-  id            String    @id @db.Char(21)
-  author        User      @relation(fields: [authorId], references: [id])
-  authorId      String    @map("author_id") @db.Char(21)
-  title         String?   @db.VarChar(60)
+  id            String         @id @db.Char(21)
+  author        User           @relation(fields: [authorId], references: [id])
+  authorId      String         @map("author_id") @db.Char(21)
+  title         String?        @db.VarChar(60)
   content       String?
-  contentHtml   String?   @map("content_html")
-  contentString String?   @map("content_string")
+  contentHtml   String?        @map("content_html")
+  contentString String?        @map("content_string")
   image         Json?
-  createdDate   DateTime  @default(now()) @map("created_date") @db.Timestamptz(0)
-  commitDate    DateTime? @map("commit_date") @db.Timestamptz(0)
+  createdDate   DateTime       @default(now()) @map("created_date") @db.Timestamptz(0)
+  commitDate    DateTime?      @map("commit_date") @db.Timestamptz(0)
+  policy        Policy?
+  policyVersion PolicyVersion?
 
   @@index([authorId])
   @@map("contents")
+}
+
+model Policy {
+  id            String          @id @db.Char(21)
+  content       Content         @relation(fields: [contentId], references: [id])
+  contentId     String          @unique @map("content_id") @db.Char(21)
+  policyVersion PolicyVersion[]
+
+  @@map("policies")
+}
+
+model PolicyVersion {
+  policy    Policy  @relation(fields: [policyId], references: [id])
+  policyId  String  @map("policy_id") @db.Char(21)
+  version   Int
+  content   Content @relation(fields: [contentId], references: [id])
+  contentId String  @unique @map("content_id") @db.Char(21)
+
+  @@id([policyId, version])
+  @@map("policy_versions")
 }
