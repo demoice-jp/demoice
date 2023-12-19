@@ -1,8 +1,35 @@
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - "./nginx:/etc/nginx/templates:ro"
+    environment:
+      - MINIO_PORT=${MINIO_API_PORT}
+      - MEDIA_BUCKET_NAME=${S3_MEDIA_BUCKET_NAME}
   postgres:
     image: postgres:latest
     ports:
       - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=demoice
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9090"
+    command: server --console-address ":9090" /data
+    volumes:
+      - minio-volume:/data
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+volumes:
+  postgres-volume:
+    name: postgres-volume
+  minio-volume:
+    name: minio-volume

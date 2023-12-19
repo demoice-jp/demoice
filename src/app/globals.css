@@ -2,58 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-.btn {
-  @apply rounded font-normal min-h-[2.5rem] h-10;
-}
-
-.input {
-  @apply h-10 rounded;
-}
-
-.select {
-  @apply h-10 min-h-[2.5rem] rounded;
-}
-
-.card {
-  @apply shadow dark:border bg-white dark:bg-gray-800 dark:border-gray-700;
-}
-
 @layer base {
+  h1 {
+    @apply text-4xl font-extrabold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
   h2 {
-    @apply text-xl font-bold text-gray-800 dark:text-gray-200;
+    @apply text-3xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h3 {
+    @apply text-2xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h4 {
+    @apply text-xl font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h5 {
+    @apply text-lg font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  h6 {
+    @apply font-bold text-black dark:text-white;
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+  }
+
+  blockquote {
+    @apply px-4 py-1 mx-2 border-s-4 border-gray-400 text-gray-500 bg-gray-100 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-400;
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  p {
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  ul,ol {
+    &:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  ul li {
+    @apply list-disc list-inside;
+  }
+
+  ul ul li {
+    @apply list-[circle]
+  }
+
+  ul ul ul li {
+    @apply list-[square]
+  }
+
+  ol li {
+    @apply list-decimal list-inside;
+  }
+
+  input::placeholder {
+    @apply opacity-40;
   }
 }
 
 @layer components {
+  .btn {
+    @apply rounded font-normal min-h-[2.5rem] h-10;
+  }
+
+  .select {
+    @apply h-10 min-h-[2.5rem] rounded;
+  }
+
+  .card {
+    @apply shadow dark:border bg-white dark:bg-gray-800 dark:border-gray-700;
+  }
+
+  .btn-ghost {
+    &:disabled {
+      @apply bg-transparent;
+    }
+  }
+
   .radio-label {
     @apply btn flex bg-base-100 border border-base-content/20;
     &:hover {
       @apply bg-base-content/20 border-base-content/20;
     }
+  }
+  .single-line-input {
+    @apply h-10 input input-bordered rounded;
+  }
+  .rich-editor {
+    &:focus,
+    &:focus-within {
+      box-shadow: none;
+      @apply outline-none;
+    }
+  }
+
+  .link-basic {
+    @apply underline cursor-pointer text-blue-600;
   }
 }
 
@@ -68,5 +137,46 @@ body {
 
   .light-text {
     @apply text-sm text-gray-600 dark:text-gray-400;
+  }
+
+  .modal-footer-buttons {
+    @apply mt-4 flex gap-4 justify-end;
+  }
+
+  .nested-list-item {
+    @apply list-none;
+  }
+
+  .list-item {
+    @apply ml-3;
+  }
+
+  .ol-depth2 li:not(.nested-list-item) {
+    list-style-type: upper-alpha;
+  }
+
+  .ol-depth3 li:not(.nested-list-item) {
+    list-style-type: lower-alpha;
+  }
+
+  .content-h2 {
+    @apply border-b border-black dark:border-white;
+  }
+
+  .embed-block {
+    @apply mb-3;
+
+    & img {
+      display: inline-block;
+    }
+
+    & iframe {
+      display: inline-block;
+      max-width: 100%;
+    }
+  }
+
+  .focused-embed-block {
+    @apply ring-4 ring-gray-500 dark:ring-gray-400;
   }
 }

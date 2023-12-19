@@ -6,7 +6,7 @@ CREATE TYPE "provider" AS ENUM ('line');
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" CHAR(21) NOT NULL,
     "user_name" VARCHAR(36) NOT NULL,
     "gender" "gender" NOT NULL,
     "birth_date" DATE NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE "users" (
 CREATE TABLE "provider_ids" (
     "provider" "provider" NOT NULL,
     "provider_id" TEXT NOT NULL,
-    "user_id" UUID NOT NULL,
+    "user_id" CHAR(21) NOT NULL,
 
     CONSTRAINT "provider_ids_pkey" PRIMARY KEY ("provider","provider_id")
 );

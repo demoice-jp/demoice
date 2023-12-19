@@ -1,14 +1,22 @@
 type FormErrorProp = {
   id?: string;
-  messages?: string[];
+  messages?: string[] | string;
 };
 export default function FormError({ id, messages }: FormErrorProp) {
-  if (!messages) {
+  if (!messages || messages.length === 0) {
     return null;
   }
+
+  let messageArray;
+  if (typeof messages === "string") {
+    messageArray = [messages];
+  } else {
+    messageArray = messages;
+  }
+
   return (
     <div>
-      {messages.map((message) => (
+      {messageArray.map((message) => (
         <p
           id={id}
           key={message}

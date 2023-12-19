@@ -1,11 +1,8 @@
 "use client";
 
-import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-
-const NOT_DISPLAY_PATH = ["/auth/signup", "/auth/signin", "/auth/post-signin", "/account/register"];
 
 type AccountHeaderProp = {
   user: User | null;
@@ -15,15 +12,11 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
 
-  if (NOT_DISPLAY_PATH.includes(pathName)) {
-    return null;
-  }
-
   if (user) {
     return (
       <div className="dropdown dropdown-end">
-        <div tabIndex={0} role="button" className="btn btn-ghost">
-          <UserCircleIcon height={24} />
+        <div tabIndex={0} role="button" className="btn btn-ghost btn-sm min-h-[2.25rem] h-9">
+          <span className="material-symbols-outlined">account_circle</span>
           <span className="max-w-[8rem] truncate">{user.userName}</span>
         </div>
         <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">

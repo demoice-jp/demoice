@@ -34,7 +34,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
   return (
     <div className="card w-full p-4 sm:p-7">
       <div className="mb-8">
-        <h2>会員情報更新</h2>
+        <h3>会員情報更新</h3>
         <p className="light-text">以下の項目を入力して下さい。</p>
       </div>
       <form action={updateDispatch}>
@@ -51,7 +51,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
               aria-describedby="user-name-error"
               type="text"
               name="userName"
-              className="input input-bordered w-full"
+              className="single-line-input w-full"
               required
               minLength={3}
               maxLength={15}
@@ -131,7 +131,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
       <dialog id="delete-account-modal" className="modal">
         <div className="modal-box">
           <p>この操作は元に戻すことができません。本当にアカウントを削除してもよろしいでしょうか？</p>
-          <form action={deleteDispatch} className="mt-4 flex gap-4 justify-end">
+          <form action={deleteDispatch} className="modal-footer-buttons">
             <input type="hidden" name="id" value={user.id} />
             <SubmitCancelButton
               onClick={(e) => {
