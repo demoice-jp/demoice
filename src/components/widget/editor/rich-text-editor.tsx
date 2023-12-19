@@ -97,6 +97,12 @@ export default function RichTextEditor({
         editorState: initialState,
         onError,
         theme: {
+          heading: {
+            h2: "content-h2",
+            h3: "content-h3",
+            h4: "content-h4",
+            h5: "content-h5",
+          },
           text: {
             underline: "underline",
             strikethrough: "line-through",

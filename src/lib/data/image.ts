@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectsCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
 
 let s3Client: S3Client;
@@ -84,4 +84,62 @@ export async function saveContentImage(
     success: true,
     location: `/media/content-image/${contentId}/${fileName}`,
   };
+}
+
+export async function deleteUnlinkImages(contentId: string, content: string) {
+  return deleteImagesInternal(contentId, content);
+}
+
+export async function deleteImages(contentId: string) {
+  return deleteImagesInternal(contentId);
+}
+
+async function deleteImagesInternal(contentId: string, content?: string) {
+  let nextContinuationToken: string | undefined = undefined;
+  do {
+    const listObjectsCommand = new ListObjectsV2Command({
+      Bucket: bucketName,
+      Prefix: `content-image/${contentId}/`,
+      ContinuationToken: nextContinuationToken,
+      MaxKeys: 500,
+    });
+
+    const objects = await s3Client.send(listObjectsCommand);
+    const imageObjects = objects.Contents;
+    if (!imageObjects) {
+      return;
+    }
+
+    const toDeleteKeys: string[] = [];
+    for (const imageObject of imageObjects) {
+      const key = imageObject.Key;
+      if (key) {
+        if (!content) {
+          toDeleteKeys.push(key);
+        } else {
+          //コンテンツに含まれないファイルは全て削除
+          const path = key.split("/");
+          const fileName = path[path.length - 1];
+          if (!content.includes(fileName)) {
+            toDeleteKeys.push(key);
+          }
+        }
+      }
+    }
+
+    if (toDeleteKeys.length > 0) {
+      const deleteObjectsCommand = new DeleteObjectsCommand({
+        Bucket: bucketName,
+        Delete: {
+          Objects: toDeleteKeys.map((k) => ({
+            Key: k,
+          })),
+          Quiet: true,
+        },
+      });
+      await s3Client.send(deleteObjectsCommand);
+    }
+
+    nextContinuationToken = objects.NextContinuationToken as string | undefined;
+  } while (nextContinuationToken);
 }

@@ -1,10 +1,10 @@
 import React from "react";
 import CreatePolicy from "@/components/page/create-policy";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
-import { getContentSummaries } from "@/lib/data/content";
+import { getContentDraftSummaries } from "@/lib/data/content";
 
 export default async function Page() {
-  const drafts = await getContentSummaries();
+  const drafts = await getContentDraftSummaries();
 
   return (
     <>

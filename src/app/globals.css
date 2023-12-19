@@ -159,6 +159,10 @@
     list-style-type: lower-alpha;
   }
 
+  .content-h2 {
+    @apply border-b border-black dark:border-white;
+  }
+
   .embed-block {
     @apply mb-3;
 

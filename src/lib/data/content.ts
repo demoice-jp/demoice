@@ -9,7 +9,7 @@ import prisma from "@/lib/orm/client";
 
 export type ContentTitle = Pick<Content, "id" | "title" | "authorId" | "contentString" | "image">;
 
-export const getContentSummaries = cache(async (): Promise<ContentTitle[]> => {
+export const getContentDraftSummaries = cache(async (): Promise<ContentTitle[]> => {
   const session = await auth();
   if (!session?.valid) {
     return [];
@@ -25,6 +25,7 @@ export const getContentSummaries = cache(async (): Promise<ContentTitle[]> => {
     },
     where: {
       authorId: session.user!.accountId,
+      commitDate: null,
     },
     orderBy: {
       createdDate: "desc",
@@ -125,6 +126,8 @@ export const fillContent = async (contentData: unknown): Promise<FillContentResu
   const domPurify = DOMPurify(jsdom.window);
   const pureContentHtml = domPurify.sanitize(parsedInput.data.contentHtml, {
     USE_PROFILES: { html: true },
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "target"],
   });
 
   await prisma.content.update({
@@ -139,6 +142,7 @@ export const fillContent = async (contentData: unknown): Promise<FillContentResu
     where: {
       id: parsedInput.data.id,
       authorId: session.user!.accountId,
+      commitDate: null,
     },
   });
 

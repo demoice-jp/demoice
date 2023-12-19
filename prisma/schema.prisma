@@ -56,8 +56,7 @@ model Content {
   contentString String?   @map("content_string")
   image         Json?
   createdDate   DateTime  @default(now()) @map("created_date") @db.Timestamptz(0)
-  commited      Boolean   @default(false)
-  comitDate     DateTime? @map("comit_date") @db.Timestamptz(0)
+  commitDate    DateTime? @map("commit_date") @db.Timestamptz(0)
 
   @@index([authorId])
   @@map("contents")

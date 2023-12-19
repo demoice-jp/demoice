@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import { ContentTitle, fillContent } from "@/lib/data/content";
-import { saveContentImage } from "@/lib/data/image";
+import { deleteImages, deleteUnlinkImages, saveContentImage } from "@/lib/data/image";
 import prisma from "@/lib/orm/client";
 
 const MAX_DRAFT_COUNT = 10;
@@ -29,6 +29,10 @@ const FillImageSchema = z.object({
       height: z.number(),
     })
     .nullish(),
+});
+
+const CommitSchema = z.object({
+  id: z.string().length(21),
 });
 
 export type StartPolicyDraftState = {
@@ -55,6 +59,10 @@ type FillPolicyDraftContentState = {
 };
 
 type FillPolicyDraftImageState = {
+  message?: string;
+};
+
+type CommitPolicyDraftState = {
   message?: string;
 };
 
@@ -113,13 +121,29 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
 
   let error: DeletePolicyDraftState["error"];
   try {
-    await prisma.content.delete({
+    const content = await prisma.content.findUnique({
       select: {
         id: true,
       },
       where: {
         id: parsedInput.data.id,
         authorId: session.user!.accountId,
+        commitDate: null,
+      },
+    });
+
+    if (!content) {
+      redirectToCreateMain();
+    }
+
+    await deleteImages(parsedInput.data.id);
+
+    await prisma.content.delete({
+      select: {
+        id: true,
+      },
+      where: {
+        id: content.id,
       },
     });
     revalidateTag("content");
@@ -141,6 +165,7 @@ export async function deletePolicyDraft(prevState: DeletePolicyDraftState, formD
     },
     where: {
       authorId: session.user!.accountId,
+      commitDate: null,
     },
   });
 
@@ -187,6 +212,7 @@ export async function fillPolicyDraftTitle(
       where: {
         id: parsedInput.data.id,
         authorId: session.user!.accountId,
+        commitDate: null,
       },
     });
   } catch (e) {
@@ -223,7 +249,7 @@ export async function fillPolicyDraftContent(
 }
 
 export async function fillPolicyDraftImage(
-  prefState: FillPolicyDraftImageState,
+  prevState: FillPolicyDraftImageState,
   imageData: unknown,
 ): Promise<FillPolicyDraftImageState> {
   const session = await auth();
@@ -239,7 +265,7 @@ export async function fillPolicyDraftImage(
   }
 
   if (!parsedInput.data.image) {
-    return {};
+    redirect(`/policy/create/${parsedInput.data.id}/confirm`);
   }
 
   if (!parsedInput.data.size) {
@@ -255,6 +281,7 @@ export async function fillPolicyDraftImage(
     where: {
       id: parsedInput.data.id,
       authorId: session.user!.accountId,
+      commitDate: null,
     },
   });
 
@@ -271,21 +298,85 @@ export async function fillPolicyDraftImage(
     };
   }
 
-  await prisma.content.update({
-    select: {
-      id: true,
-    },
-    where: {
-      id: content.id,
-    },
-    data: {
-      image: {
-        src: saveResult.location,
-        width: parsedInput.data.size.width,
-        height: parsedInput.data.size.height,
+  try {
+    await prisma.content.update({
+      select: {
+        id: true,
       },
-    },
-  });
+      where: {
+        id: content.id,
+        authorId: session.user!.accountId,
+        commitDate: null,
+      },
+      data: {
+        image: {
+          src: saveResult.location,
+          width: parsedInput.data.size.width,
+          height: parsedInput.data.size.height,
+        },
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "画像メタデータの保存に失敗しました",
+    };
+  }
+
+  redirect(`/policy/create/${parsedInput.data.id}/confirm`);
+}
+
+export async function commitPolicyDraft(
+  prevState: CommitPolicyDraftState,
+  formData: FormData,
+): Promise<CommitPolicyDraftState> {
+  const session = await auth();
+  if (!session?.valid) {
+    redirectToLogin();
+  }
+
+  const parsedInput = CommitSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedInput.success) {
+    return {
+      message: parsedInput.error.errors[0].message,
+    };
+  }
+
+  try {
+    const content = await prisma.content.findUnique({
+      where: {
+        id: parsedInput.data.id,
+        authorId: session.user!.accountId,
+        commitDate: null,
+      },
+    });
+    if (!content || !content.title || !content.content || !content.contentHtml || !content.contentString) {
+      return {
+        message: "コンテンツが見つかりません",
+      };
+    }
+
+    await deleteUnlinkImages(parsedInput.data.id, JSON.stringify({ content: content.content, image: content.image }));
+
+    await prisma.content.update({
+      select: {
+        id: true,
+      },
+      where: {
+        id: parsedInput.data.id,
+        authorId: session.user!.accountId,
+        commitDate: null,
+      },
+      data: {
+        commitDate: new Date(),
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "投稿のコミットに失敗しました",
+    };
+  }
 
   return {};
 }

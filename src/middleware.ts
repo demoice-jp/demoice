@@ -10,6 +10,7 @@ export function middleware(request: NextRequest) {
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
     font-src 'self';
+    frame-src 'self' https://www.youtube-nocookie.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -30,6 +31,7 @@ export function middleware(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", contentSecurityPolicyHeaderValue);
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
 
   return response;
 }

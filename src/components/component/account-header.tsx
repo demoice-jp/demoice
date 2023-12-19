@@ -15,7 +15,7 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
   if (user) {
     return (
       <div className="dropdown dropdown-end">
-        <div tabIndex={0} role="button" className="btn btn-ghost">
+        <div tabIndex={0} role="button" className="btn btn-ghost btn-sm min-h-[2.25rem] h-9">
           <span className="material-symbols-outlined">account_circle</span>
           <span className="max-w-[8rem] truncate">{user.userName}</span>
         </div>

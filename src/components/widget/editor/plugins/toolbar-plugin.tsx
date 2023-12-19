@@ -365,7 +365,11 @@ export default function ToolbarPlugin() {
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && isValidUrl) {
-                      editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkUrl);
+                      editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
+                        url: linkUrl,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      });
                       e.preventDefault();
                     }
                   }}
@@ -387,7 +391,11 @@ export default function ToolbarPlugin() {
                     className="btn btn-ghost btn-sm text-green-600"
                     disabled={!isValidUrl}
                     onClick={() => {
-                      editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkUrl);
+                      editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
+                        url: linkUrl,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      });
                     }}
                   >
                     <span className="material-symbols-outlined">done</span>
@@ -555,13 +563,6 @@ const BLOCK_TYPES = {
           $setBlocksType(selection, () => $createParagraphNode());
         }
       });
-    },
-  },
-  h1: {
-    name: "見出し1",
-    icon: "format_h1",
-    apply: (editor: LexicalEditor) => {
-      formatHeading(editor, "h1");
     },
   },
   h2: {
