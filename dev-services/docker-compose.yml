@@ -28,8 +28,39 @@ services:
     environment:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+  opensearch:
+    build: ./opensearch
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-volume:/usr/share/opensearch/data
+    ports:
+      - "${OPENSEARCH_REST_API_PORT}:9200"
+      - "${OPENSEARCH_ANALYZER_PORT}:9600"
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.8.0
+    ports:
+      - "${OPENSEARCH_DASHBOARDS_PORT}:5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
 volumes:
   postgres-volume:
     name: postgres-volume
   minio-volume:
     name: minio-volume
+  opensearch-volume:
+    name: opensearch-volume
