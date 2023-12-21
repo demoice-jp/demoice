@@ -11,11 +11,13 @@
     "dev-db-migrate": "dotenv -e .env.local -- npx prisma migrate dev",
     "dev-db-push": "dotenv -e .env.local -- npx prisma db push",
     "dev-db-reset": "dotenv -e .env.local -- npx prisma migrate reset",
-    "dev-minio-init": "dotenv -e .env.local -- ts-node ./dev-services/minio-init.ts"
+    "dev-minio-init": "dotenv -e .env.local -- ts-node ./dev-services/minio-init.ts",
+    "dev-opensearch-init": "dotenv -e .env.local -- ts-node ./dev-services/opensearch-init.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.468.0",
     "@lexical/react": "^0.12.4",
+    "@opensearch-project/opensearch": "^2.4.0",
     "@prisma/client": "^5.6.0",
     "clsx": "^2.0.0",
     "compressorjs": "^1.2.1",

@@ -21,7 +21,7 @@ export default function CreatePolicyConfirm({ draft }: CreatePolicyConfirmProp) 
       <p>投稿内容をご確認の上、下部の投稿ボタンを押してください。</p>
       <div className="flex flex-col w-screen px-6 md:w-[44rem]">
         <h1>{draft.title}</h1>
-        {draft.image && <ContentImage className="w-full" contentImage={draft.image} />}
+        {draft.image && <ContentImage className="w-full mb-4" contentImage={draft.image} />}
         <div dangerouslySetInnerHTML={{ __html: draft.contentHtml! }} />
       </div>
       <form className="flex flex-col gap-1.5 my-8 w-screen px-6 md:w-[36rem]" action={dispatch}>
