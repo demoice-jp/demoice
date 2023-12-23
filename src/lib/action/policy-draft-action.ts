@@ -7,6 +7,7 @@ import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import { ContentTitle, fillContent } from "@/lib/data/content";
 import { deleteImages, deleteUnlinkImages, saveContentImage } from "@/lib/data/image";
+import { indexPolicy } from "@/lib/data/policy";
 import prisma from "@/lib/orm/client";
 
 const MAX_DRAFT_COUNT = 10;
@@ -342,6 +343,7 @@ export async function commitPolicyDraft(
     };
   }
 
+  const newPolicyId = nanoid();
   try {
     const content = await prisma.content.findUnique({
       where: {
@@ -359,6 +361,8 @@ export async function commitPolicyDraft(
     await deleteUnlinkImages(parsedInput.data.id, JSON.stringify({ content: content.content, image: content.image }));
 
     await prisma.$transaction(async (prisma) => {
+      const commitDate = new Date();
+
       const content = await prisma.content.update({
         select: {
           id: true,
@@ -369,15 +373,16 @@ export async function commitPolicyDraft(
           commitDate: null,
         },
         data: {
-          commitDate: new Date(),
+          commitDate,
         },
       });
 
-      const newPolicyId = nanoid();
       await prisma.policy.create({
         data: {
           id: newPolicyId,
           contentId: content.id,
+          createdDate: commitDate,
+          updatedDate: commitDate,
           policyVersion: {
             create: {
               version: 1,
@@ -392,6 +397,30 @@ export async function commitPolicyDraft(
     return {
       message: "投稿のコミットに失敗しました",
     };
+  }
+
+  try {
+    const policy = await prisma.policy.findUnique({
+      where: {
+        id: newPolicyId,
+      },
+      include: {
+        content: {
+          select: {
+            title: true,
+            contentString: true,
+            image: true,
+          },
+        },
+      },
+    });
+    if (!policy) {
+      console.error("作成されたPolicyが見つかりません");
+    } else {
+      await indexPolicy(policy);
+    }
+  } catch (e) {
+    console.error(e);
   }
 
   redirect(`/policy/create/${parsedInput.data.id}/complete`);

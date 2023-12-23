@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import DemoiceLogo from "@/asset/demoice.svg";
 import AccountHeader from "@/components/component/account-header";
+import HeaderSearch from "@/components/component/header-search";
 import HideHeaderItems from "@/components/component/hide-header-items";
 import { getUser } from "@/lib/data/user";
 
@@ -22,6 +23,7 @@ export default async function Header() {
         </div>
         <HideHeaderItems>
           <div className="flex gap-x-4">
+            <HeaderSearch />
             <div className={clsx("flex items-center", !user && "hidden md:flex")}>
               <Link className="btn btn-primary btn-sm min-h-[2.25rem] h-9" href="/policy/create">
                 <span className="hidden md:inline">新規投稿</span>

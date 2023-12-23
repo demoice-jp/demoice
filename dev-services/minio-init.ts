@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CreateBucketCommand, PutBucketPolicyCommand, S3Client } from "@aws-sdk/client-s3";
 
 const port = process.env.MINIO_API_PORT;

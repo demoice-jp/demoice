@@ -68,6 +68,8 @@ model Policy {
   id            String          @id @db.Char(21)
   content       Content         @relation(fields: [contentId], references: [id])
   contentId     String          @unique @map("content_id") @db.Char(21)
+  createdDate   DateTime        @map("created_date") @db.Timestamptz(0)
+  updatedDate   DateTime        @map("updated_date") @db.Timestamptz(0)
   policyVersion PolicyVersion[]
 
   @@map("policies")
