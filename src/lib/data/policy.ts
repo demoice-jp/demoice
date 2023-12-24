@@ -24,6 +24,35 @@ export const getPolicyByContentId = cache(async (contentId: string) => {
   });
 });
 
+export const getPolicyById = cache(async (policyId: string) => {
+  return prisma.policy.findUnique({
+    where: {
+      id: policyId,
+    },
+    include: {
+      content: true,
+    },
+  });
+});
+
+export const getMyVote = cache(async (policyId: string, accountId?: string) => {
+  if (!accountId) {
+    return null;
+  }
+
+  return prisma.policyVote.findUnique({
+    select: {
+      vote: true,
+    },
+    where: {
+      voterId_policyId: {
+        policyId: policyId,
+        voterId: accountId,
+      },
+    },
+  });
+});
+
 export async function indexPolicy(policy: Policy & { content: Pick<Content, "title" | "image" | "contentString"> }) {
   await client.index({
     index: "policy",

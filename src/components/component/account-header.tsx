@@ -19,7 +19,7 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
           <span className="material-symbols-outlined">account_circle</span>
           <span className="max-w-[8rem] truncate">{user.userName}</span>
         </div>
-        <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+        <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 top-10">
           <li>
             <Link href="/account/update">会員情報更新</Link>
           </li>

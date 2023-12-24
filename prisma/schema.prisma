@@ -18,6 +18,7 @@ model User {
   deleted     Boolean
   idProvider  ProviderId[]
   content     Content[]
+  policyVote  PolicyVote[]
 
   @@map("users")
 }
@@ -70,7 +71,10 @@ model Policy {
   contentId     String          @unique @map("content_id") @db.Char(21)
   createdDate   DateTime        @map("created_date") @db.Timestamptz(0)
   updatedDate   DateTime        @map("updated_date") @db.Timestamptz(0)
+  votePositive  Int             @default(0) @map("vote_positive")
+  voteNegative  Int             @default(0) @map("vote_negative")
   policyVersion PolicyVersion[]
+  policyVote    PolicyVote[]
 
   @@map("policies")
 }
@@ -84,4 +88,23 @@ model PolicyVersion {
 
   @@id([policyId, version])
   @@map("policy_versions")
+}
+
+model PolicyVote {
+  voter    User   @relation(fields: [voterId], references: [id])
+  voterId  String @map("voter_id") @db.Char(21)
+  policy   Policy @relation(fields: [policyId], references: [id])
+  policyId String @map("policy_id") @db.Char(21)
+  vote     Vote
+
+  @@id([voterId, policyId])
+  @@index([policyId])
+  @@map("policy_votes")
+}
+
+enum Vote {
+  positive
+  negative
+
+  @@map("vote")
 }
