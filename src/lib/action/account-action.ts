@@ -205,23 +205,60 @@ export async function deleteAccount(prevState: CreateAccountState, formData: For
   }
 
   try {
-    await prisma.$transaction([
-      prisma.user.update({
+    await prisma.$transaction(async (prisma) => {
+      const accountId = session.user!.accountId;
+
+      const votes = await prisma.policyVote.findMany({
+        where: {
+          voterId: accountId,
+        },
+      });
+
+      for (const vote of votes) {
+        const decrement =
+          vote.vote === "positive"
+            ? { votePositive: { decrement: 1 } }
+            : vote.vote === "negative"
+              ? { voteNegative: { decrement: 1 } }
+              : null;
+
+        if (!decrement) {
+          throw new Error("定義されていない投票種別を検知しました");
+        }
+
+        await prisma.policy.update({
+          select: {
+            id: true,
+          },
+          where: {
+            id: vote.policyId,
+          },
+          data: decrement,
+        });
+      }
+
+      await prisma.policyVote.deleteMany({
+        where: {
+          voterId: accountId,
+        },
+      });
+
+      await prisma.user.update({
         data: {
-          userName: session.user.accountId, //ユーザー名が再利用できるように
+          userName: accountId, //ユーザー名が再利用できるように
           updatedDate: new Date(),
           deleted: true,
         },
         where: {
-          id: session.user.accountId,
+          id: accountId,
         },
-      }),
-      prisma.providerId.deleteMany({
+      });
+      await prisma.providerId.deleteMany({
         where: {
-          userId: session.user.accountId,
+          userId: accountId,
         },
-      }),
-    ]);
+      });
+    });
   } catch (e) {
     console.error(e);
     return {
