@@ -2,6 +2,7 @@ import { PolicyVote } from ".prisma/client";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
+import ExpectedError from "@/lib/util/ExpectedError";
 
 const VoteSchema = z.object({
   policyId: z.string().length(21),
@@ -75,7 +76,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
       });
 
       if (!policy) {
-        throw new Error("政策が見つかりません");
+        throw new ExpectedError({
+          status: 400,
+          message: "政策が見つかりません",
+        });
       }
 
       const voterId_policyId = {
@@ -232,6 +236,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
       },
     );
   } catch (e) {
+    if (e instanceof ExpectedError) {
+      return Response.json(
+        {
+          message: e.message,
+        },
+        {
+          status: e.status,
+        },
+      );
+    }
     console.error(e);
     return Response.json(
       {

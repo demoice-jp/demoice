@@ -4,6 +4,7 @@ import React from "react";
 import { Policy, PolicyVote } from ".prisma/client";
 import { Content } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import useSWRImmutable from "swr/immutable";
 import useSWRMutation from "swr/mutation";
 import { VoteSuccess } from "@/app/api/policy/[id]/vote/route";
@@ -37,7 +38,12 @@ export default function PolicyVote({ policy, accountId, myVote }: PolicyVoteProp
           vote: arg,
         }),
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw res;
+          }
+          return res.json();
+        })
         .then((d: VoteSuccess) => ({
           votePositive: d.votePositive,
           voteNegative: d.voteNegative,
@@ -47,6 +53,9 @@ export default function PolicyVote({ policy, accountId, myVote }: PolicyVoteProp
     {
       populateCache: (result) => result,
       revalidate: false,
+      onError: async () => {
+        toast.error("投票に失敗しました");
+      },
     },
   );
 

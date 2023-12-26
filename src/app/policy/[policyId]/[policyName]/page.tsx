@@ -2,6 +2,7 @@ import React from "react";
 import PolicyVote from "@/components/component/policy-vote";
 import BackButton from "@/components/widget/back-button";
 import ContentImage from "@/components/widget/content-image";
+import Toast from "@/components/widget/toast";
 import { auth } from "@/lib/auth/auth";
 import { getMyVote, getPolicyById } from "@/lib/data/policy";
 
@@ -40,6 +41,7 @@ export default async function Page({ params: { policyId } }: PageProp) {
           </div>
         </main>
       )}
+      <Toast />
     </div>
   );
 }
