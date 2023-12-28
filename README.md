@@ -30,6 +30,11 @@ MinIO (S3エミュレータとして利用)を初期化
 npm run dev-minio-init
 ```
 
+OpenSearchを初期化
+```bash
+npm run dev-opensearch-init
+```
+
 開発サーバーを起動
 ```bash
 npm run dev

@@ -1,5 +1,6 @@
 "use server";
 
+import { User } from "@prisma/client";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { nanoid } from "nanoid";
@@ -205,60 +206,73 @@ export async function deleteAccount(prevState: CreateAccountState, formData: For
   }
 
   try {
-    await prisma.$transaction(async (prisma) => {
-      const accountId = session.user!.accountId;
+    await prisma.$transaction(
+      async (tx) => {
+        const accountId = session.user!.accountId;
 
-      const votes = await prisma.policyVote.findMany({
-        where: {
-          voterId: accountId,
-        },
-      });
-
-      for (const vote of votes) {
-        const decrement =
-          vote.vote === "positive"
-            ? { votePositive: { decrement: 1 } }
-            : vote.vote === "negative"
-              ? { voteNegative: { decrement: 1 } }
-              : null;
-
-        if (!decrement) {
-          throw new Error("定義されていない投票種別を検知しました");
+        // 並列に入られると投票数を操作できるのでロックをとる
+        const user = await tx.$queryRaw<
+          Pick<User, "id" | "deleted">[]
+        >`SELECT id, deleted FROM users WHERE id = ${accountId} FOR UPDATE`;
+        if (user.length !== 1 || user[0].deleted) {
+          return;
         }
 
-        await prisma.policy.update({
-          select: {
-            id: true,
+        const votes = await tx.policyVote.findMany({
+          where: {
+            voterId: accountId,
+          },
+        });
+
+        for (const vote of votes) {
+          const decrement =
+            vote.vote === "positive"
+              ? { votePositive: { decrement: 1 } }
+              : vote.vote === "negative"
+                ? { voteNegative: { decrement: 1 } }
+                : null;
+
+          if (!decrement) {
+            throw new Error("定義されていない投票種別を検知しました");
+          }
+
+          await tx.policy.update({
+            select: {
+              id: true,
+            },
+            where: {
+              id: vote.policyId,
+            },
+            data: decrement,
+          });
+        }
+
+        await tx.policyVote.deleteMany({
+          where: {
+            voterId: accountId,
+          },
+        });
+
+        await tx.user.update({
+          data: {
+            userName: accountId, //ユーザー名が再利用できるように
+            updatedDate: new Date(),
+            deleted: true,
           },
           where: {
-            id: vote.policyId,
+            id: accountId,
           },
-          data: decrement,
         });
-      }
-
-      await prisma.policyVote.deleteMany({
-        where: {
-          voterId: accountId,
-        },
-      });
-
-      await prisma.user.update({
-        data: {
-          userName: accountId, //ユーザー名が再利用できるように
-          updatedDate: new Date(),
-          deleted: true,
-        },
-        where: {
-          id: accountId,
-        },
-      });
-      await prisma.providerId.deleteMany({
-        where: {
-          userId: accountId,
-        },
-      });
-    });
+        await tx.providerId.deleteMany({
+          where: {
+            userId: accountId,
+          },
+        });
+      },
+      {
+        timeout: 60_000,
+      },
+    );
   } catch (e) {
     console.error(e);
     return {
