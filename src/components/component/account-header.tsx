@@ -3,6 +3,7 @@
 import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import UserAvatar from "@/components/widget/user-avatar";
 
 type AccountHeaderProp = {
   user: User | null;
@@ -14,12 +15,12 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
 
   if (user) {
     return (
-      <div className="dropdown dropdown-end flex items-center">
-        <div tabIndex={0} role="button" className="btn btn-ghost btn-sm min-h-[2.25rem] h-9">
-          <span className="material-symbols-outlined">account_circle</span>
-          <span className="max-w-[8rem] truncate">{user.userName}</span>
+      <div className="dropdown dropdown-end">
+        <div tabIndex={0} role="button" className="btn btn-ghost rounded-full btn-sm w-12 h-12 px-1">
+          <UserAvatar user={user} size={64} />
         </div>
-        <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 top-10">
+        <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+          <div className="truncate w-full mb-1 mt-0.5 mx-0.5 font-bold">{user.userName}</div>
           <li>
             <Link href="/account/update">会員情報更新</Link>
           </li>

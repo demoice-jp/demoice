@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { User } from "@prisma/client";
+import clsx from "clsx";
+import Cropper from "cropperjs";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -11,7 +13,9 @@ import FormError from "@/components/widget/form-error";
 import PrefectureSelect from "@/components/widget/prefecture-select";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
+import UserAvatar from "@/components/widget/user-avatar";
 import { deleteAccount, updateAccount } from "@/lib/action/account-action";
+import "cropperjs/dist/cropper.css";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -20,9 +24,10 @@ type UpdateAccountFormProp = {
   user: User;
 };
 
+const SMALL_DUMMY_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
 export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
   const [updateState, updateDispatch] = useFormState(updateAccount, {});
-  const [deleteState, deleteDispatch] = useFormState(deleteAccount, {});
   const { refresh } = useRouter();
 
   useEffect(() => {
@@ -58,6 +63,15 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
               defaultValue={user.userName}
             />
             <FormError id="user-name-error" messages={updateState.errors?.userName} />
+          </div>
+
+          <div className="sm:col-span-3">
+            <label className="label mt-1.5">
+              <span className="label-text">アバター</span>
+            </label>
+          </div>
+          <div className="sm:col-span-9 self-center">
+            <AvatarEdit user={user} />
           </div>
 
           <div className="sm:col-span-3">
@@ -114,7 +128,159 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
           </div>
         )}
       </form>
-      {/* 以下アカウント削除フォーム */}
+      <DeleteAccount user={user} />
+    </div>
+  );
+}
+
+function AvatarEdit({ user }: { user: User }) {
+  const cropperRef = useRef<Cropper>();
+  const [rawAvatarImage, setRawAvatarImage] = useState<string | null>(null);
+  const [readRawImageError, setReadRawImageError] = useState<string>("");
+  const [newAvatar, setNewAvatar] = useState<{
+    avatar128: string;
+    avatar64: string;
+    avatar32: string;
+  } | null>(null);
+
+  const onSetRawAvatarImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    setReadRawImageError("");
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      if (typeof dataUrl !== "string") {
+        setReadRawImageError("画像ファイルを読み込めませんでした");
+        return;
+      }
+      setRawAvatarImage(dataUrl);
+    };
+
+    reader.readAsDataURL(files[0]);
+  }, []);
+
+  const onSetAvatarImage = useCallback(() => {
+    if (!rawAvatarImage || !cropperRef.current) {
+      return;
+    }
+
+    setNewAvatar({
+      avatar128: cropperRef
+        .current!.getCroppedCanvas({
+          width: 128,
+          height: 128,
+        })
+        .toDataURL("image/png"),
+      avatar64: cropperRef
+        .current!.getCroppedCanvas({
+          width: 64,
+          height: 64,
+        })
+        .toDataURL("image/png"),
+      avatar32: cropperRef
+        .current!.getCroppedCanvas({
+          width: 32,
+          height: 32,
+        })
+        .toDataURL("image/png"),
+    });
+
+    if (document) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.close();
+    }
+  }, [rawAvatarImage]);
+
+  useEffect(() => {
+    if (document) {
+      const cropper = cropperRef.current;
+      if (cropper) {
+        cropper.destroy();
+      }
+      cropperRef.current = new Cropper(document.getElementById("avatar-cropper") as HTMLImageElement, {
+        viewMode: 1,
+        aspectRatio: 1,
+        movable: false,
+        zoomable: false,
+        toggleDragModeOnDblclick: false,
+        minCropBoxWidth: 32,
+        autoCropArea: 1,
+      });
+    }
+  }, [rawAvatarImage]);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="w-20 h-20 rounded-full overflow-hidden"
+        onClick={() => {
+          if (document) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.showModal();
+          }
+        }}
+      >
+        {newAvatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img width={128} height={128} src={newAvatar.avatar128} alt="アバター" />
+        ) : (
+          <UserAvatar user={user} size={128} />
+        )}
+        {newAvatar && (
+          <>
+            <input type="hidden" name="avatar128" value={newAvatar.avatar128} />
+            <input type="hidden" name="avatar64" value={newAvatar.avatar64} />
+            <input type="hidden" name="avatar32" value={newAvatar.avatar32} />
+          </>
+        )}
+      </button>
+      <dialog id="avatar-upload-modal" className="modal">
+        <div className="modal-box">
+          <h4>アバター変更</h4>
+          <input
+            type="file"
+            className="file-input file-input-bordered w-full"
+            accept="image/png,image/jpeg"
+            onChange={onSetRawAvatarImage}
+          />
+          <FormError messages={readRawImageError} />
+          <div className={clsx("mt-4 max-h-[18rem]", !rawAvatarImage && "hidden")}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img id="avatar-cropper" src={rawAvatarImage || SMALL_DUMMY_IMAGE} alt="アバター編集" />
+          </div>
+          <div className="modal-action">
+            <button disabled={!rawAvatarImage} type="button" className="btn btn-primary" onClick={onSetAvatarImage}>
+              変更
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                if (document) {
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                  (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.close();
+                }
+              }}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
+  );
+}
+
+function DeleteAccount({ user }: { user: User }) {
+  const [deleteState, deleteDispatch] = useFormState(deleteAccount, {});
+
+  return (
+    <>
       <div className="mt-24 flex justify-end">
         <button
           className="btn btn-outline btn-error"
@@ -153,6 +319,6 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
           )}
         </div>
       </dialog>
-    </div>
+    </>
   );
 }

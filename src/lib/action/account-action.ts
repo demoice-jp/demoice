@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth, signOut } from "@/lib/auth/auth";
 import IdProvider from "@/lib/data/id-provider";
+import { saveAvatarImage } from "@/lib/data/image";
 import prefecture from "@/lib/data/prefecture";
 import prisma from "@/lib/orm/client";
 
@@ -29,6 +30,9 @@ const AccountSchema = z.object({
       required_error: "都道府県を選択してください。",
     })
     .refine((id) => !!prefecture[id], "都道府県を選択してください。"),
+  avatar128: z.string().nullish(),
+  avatar64: z.string().nullish(),
+  avatar32: z.string().nullish(),
 });
 
 const CreateAccountSchema = AccountSchema;
@@ -177,14 +181,30 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
   }
 
   try {
+    const isAvatarChanged = !!(parsedInput.data.avatar128 && parsedInput.data.avatar64 && parsedInput.data.avatar32);
+    let avatarId: string | null = null;
+    if (isAvatarChanged) {
+      avatarId = await saveAvatarImage(session.user.accountId, {
+        avatar128: parsedInput.data.avatar128!,
+        avatar64: parsedInput.data.avatar64!,
+        avatar32: parsedInput.data.avatar32!,
+      });
+    }
+
     await prisma.user.update({
       data: {
         userName: parsedInput.data.userName,
         prefecture: parsedInput.data.prefecture,
         updatedDate: new Date(),
+        ...(avatarId
+          ? {
+              avatar: avatarId,
+            }
+          : {}),
       },
       where: {
         id: session.user.accountId,
+        deleted: false,
       },
     });
   } catch (e) {
