@@ -86,6 +86,85 @@ export async function saveContentImage(
   };
 }
 
+export async function saveAvatarImage(
+  accountId: string,
+  image: {
+    avatar128: string;
+    avatar64: string;
+    avatar32: string;
+  },
+) {
+  const nanoId = nanoid();
+
+  const listObjectsCommand = new ListObjectsV2Command({
+    Bucket: bucketName,
+    Prefix: `user-image/${accountId}/avatar/`,
+    MaxKeys: 500,
+  });
+
+  const objects = await s3Client.send(listObjectsCommand);
+  const currentAvatars = objects.Contents;
+
+  await Promise.all([
+    saveAvatarImageFile(accountId, nanoId, image.avatar128, "128"),
+    saveAvatarImageFile(accountId, nanoId, image.avatar64, "64"),
+    saveAvatarImageFile(accountId, nanoId, image.avatar32, "32"),
+  ]);
+
+  if (currentAvatars && currentAvatars.length > 0) {
+    const deleteObjectsCommand = new DeleteObjectsCommand({
+      Bucket: bucketName,
+      Delete: {
+        Objects: currentAvatars.map((c) => ({
+          Key: c.Key,
+        })),
+        Quiet: true,
+      },
+    });
+    await s3Client.send(deleteObjectsCommand);
+  }
+  return nanoId;
+}
+
+export async function deleteAvatarImage(accountId: string) {
+  const listObjectsCommand = new ListObjectsV2Command({
+    Bucket: bucketName,
+    Prefix: `user-image/${accountId}/avatar/`,
+    MaxKeys: 500,
+  });
+  const objects = await s3Client.send(listObjectsCommand);
+  const currentAvatars = objects.Contents;
+  if (currentAvatars && currentAvatars.length > 0) {
+    const deleteObjectsCommand = new DeleteObjectsCommand({
+      Bucket: bucketName,
+      Delete: {
+        Objects: currentAvatars.map((c) => ({
+          Key: c.Key,
+        })),
+        Quiet: true,
+      },
+    });
+    await s3Client.send(deleteObjectsCommand);
+  }
+}
+
+async function saveAvatarImageFile(accountId: string, avatarId: string, imageDataUrl: string, size: string) {
+  const blob = await (await fetch(imageDataUrl)).blob();
+  const mediaType = blob.type;
+  if (mediaType !== "image/png") {
+    throw new Error("MediaTypeはpngである必要があります");
+  }
+  const fileName = `avatar${size}.png`;
+
+  const createFile = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: `user-image/${accountId}/avatar/${avatarId}/${fileName}`,
+    Body: Buffer.from(await blob.arrayBuffer()),
+    ContentType: blob.type,
+  });
+  await s3Client.send(createFile);
+}
+
 export async function deleteUnlinkImages(contentId: string, content: string) {
   return deleteImagesInternal(contentId, content);
 }

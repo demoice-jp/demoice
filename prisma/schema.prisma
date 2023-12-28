@@ -13,6 +13,7 @@ model User {
   gender      Gender
   birthDate   DateTime     @map("birth_date") @db.Date
   prefecture  String       @db.Char(2)
+  avatar      String?      @db.Char(21)
   createdDate DateTime     @default(now()) @map("created_date") @db.Timestamp(0)
   updatedDate DateTime     @default(now()) @map("updated_date") @db.Timestamp(0)
   deleted     Boolean
