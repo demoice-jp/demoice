@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,8 +13,8 @@ model User {
   gender      Gender
   birthDate   DateTime     @map("birth_date") @db.Date
   prefecture  String       @db.Char(2)
-  createdDate DateTime     @default(now()) @map("created_date") @db.Timestamptz(0)
-  updatedDate DateTime     @default(now()) @map("updated_date") @db.Timestamptz(0)
+  createdDate DateTime     @default(now()) @map("created_date") @db.Timestamp(0)
+  updatedDate DateTime     @default(now()) @map("updated_date") @db.Timestamp(0)
   deleted     Boolean
   idProvider  ProviderId[]
   content     Content[]
@@ -25,7 +25,7 @@ model User {
 
 model ProviderId {
   provider   Provider
-  providerId String   @map("provider_id")
+  providerId String   @map("provider_id") @db.VarChar(255)
   user       User     @relation(fields: [userId], references: [id])
   userId     String   @map("user_id") @db.Char(21)
 
@@ -52,12 +52,12 @@ model Content {
   author        User           @relation(fields: [authorId], references: [id])
   authorId      String         @map("author_id") @db.Char(21)
   title         String?        @db.VarChar(60)
-  content       String?
-  contentHtml   String?        @map("content_html")
-  contentString String?        @map("content_string")
+  content       String?        @db.MediumText
+  contentHtml   String?        @map("content_html") @db.MediumText
+  contentString String?        @map("content_string") @db.MediumText
   image         Json?
-  createdDate   DateTime       @default(now()) @map("created_date") @db.Timestamptz(0)
-  commitDate    DateTime?      @map("commit_date") @db.Timestamptz(0)
+  createdDate   DateTime       @default(now()) @map("created_date") @db.Timestamp(0)
+  commitDate    DateTime?      @map("commit_date") @db.Timestamp(0)
   policy        Policy?
   policyVersion PolicyVersion?
 
@@ -69,8 +69,8 @@ model Policy {
   id            String          @id @db.Char(21)
   content       Content         @relation(fields: [contentId], references: [id])
   contentId     String          @unique @map("content_id") @db.Char(21)
-  createdDate   DateTime        @map("created_date") @db.Timestamptz(0)
-  updatedDate   DateTime        @map("updated_date") @db.Timestamptz(0)
+  createdDate   DateTime        @map("created_date") @db.Timestamp(0)
+  updatedDate   DateTime        @map("updated_date") @db.Timestamp(0)
   votePositive  Int             @default(0) @map("vote_positive")
   voteNegative  Int             @default(0) @map("vote_negative")
   policyVersion PolicyVersion[]

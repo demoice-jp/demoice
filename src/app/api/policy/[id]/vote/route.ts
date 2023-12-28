@@ -1,4 +1,5 @@
 import { PolicyVote } from ".prisma/client";
+import { User } from "@prisma/client";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
@@ -59,7 +60,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 
   try {
-    const latestVote = await prisma.$transaction(async (prisma) => {
+    const latestVote = await prisma.$transaction(async (tx) => {
       const requestData = parsedRequest.data;
       const userId = session.user!.accountId;
       const policySelect = {
@@ -68,7 +69,19 @@ export async function POST(request: Request, { params }: { params: { id: string 
         voteNegative: true,
       };
 
-      const policy = await prisma.policy.findUnique({
+      // ギャップロック取得によるデッドロックを防ぎながら悲観的ロックをレコードにかけるために
+      // 確実にレコードが存在するかつ並列実行パフォーマンスに影響が小さいUserテーブルのレコードにロックをかける
+      const user = await tx.$queryRaw<
+        Pick<User, "id" | "deleted">[]
+      >`SELECT id, deleted FROM users WHERE id = ${userId} FOR UPDATE`;
+      if (user.length !== 1 || user[0].deleted) {
+        throw new ExpectedError({
+          status: 403,
+          message: "無効なユーザーです",
+        });
+      }
+
+      const policy = await tx.policy.findUnique({
         select: policySelect,
         where: {
           id: requestData.policyId,
@@ -87,7 +100,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         voterId: userId,
       };
 
-      const currentVote = await prisma.policyVote.findUnique({
+      const currentVote = await tx.policyVote.findUnique({
         where: {
           voterId_policyId,
         },
@@ -98,14 +111,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
         if (!currentVote) {
           return policy;
         } else {
-          await prisma.policyVote.delete({
+          await tx.policyVote.delete({
             where: {
               voterId_policyId,
             },
           });
           if (currentVote.vote === "positive") {
             // 賛成の取り消し
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
@@ -118,7 +131,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             });
           } else if (currentVote.vote === "negative") {
             // 反対の取り消し
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
@@ -135,7 +148,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         }
       } else {
         // 投票
-        await prisma.policyVote.upsert({
+        await tx.policyVote.upsert({
           where: {
             voterId_policyId,
           },
@@ -152,7 +165,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
           // 新規投票
           if (requestData.vote === "positive") {
             // 賛成投票
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
@@ -165,7 +178,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             });
           } else if (requestData.vote === "negative") {
             // 反対投票
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
@@ -187,7 +200,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
           if (requestData.vote === "positive") {
             // 賛成へ変更
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
@@ -203,7 +216,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             });
           } else if (requestData.vote === "negative") {
             // 反対へ変更
-            return prisma.policy.update({
+            return tx.policy.update({
               select: policySelect,
               where: {
                 id: policy.id,
