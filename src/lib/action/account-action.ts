@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth, signOut } from "@/lib/auth/auth";
 import IdProvider from "@/lib/data/id-provider";
-import { saveAvatarImage } from "@/lib/data/image";
+import { deleteAvatarImage, saveAvatarImage } from "@/lib/data/image";
 import prefecture from "@/lib/data/prefecture";
 import prisma from "@/lib/orm/client";
 
@@ -33,6 +33,7 @@ const AccountSchema = z.object({
   avatar128: z.string().nullish(),
   avatar64: z.string().nullish(),
   avatar32: z.string().nullish(),
+  deleteAvatar: z.coerce.boolean().nullish(),
 });
 
 const CreateAccountSchema = AccountSchema;
@@ -180,6 +181,7 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
     };
   }
 
+  let deleteAvatar = false;
   try {
     const isAvatarChanged = !!(parsedInput.data.avatar128 && parsedInput.data.avatar64 && parsedInput.data.avatar32);
     let avatarId: string | null = null;
@@ -189,6 +191,8 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
         avatar64: parsedInput.data.avatar64!,
         avatar32: parsedInput.data.avatar32!,
       });
+    } else if (parsedInput.data.deleteAvatar) {
+      deleteAvatar = true;
     }
 
     await prisma.user.update({
@@ -200,7 +204,11 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
           ? {
               avatar: avatarId,
             }
-          : {}),
+          : deleteAvatar
+            ? {
+                avatar: null,
+              }
+            : {}),
       },
       where: {
         id: session.user.accountId,
@@ -212,6 +220,14 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
     return {
       message: "アカウントの更新に失敗しました。",
     };
+  }
+
+  if (deleteAvatar) {
+    try {
+      await deleteAvatarImage(session.user.accountId);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return {

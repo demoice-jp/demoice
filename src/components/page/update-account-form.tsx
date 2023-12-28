@@ -7,14 +7,17 @@ import Cropper from "cropperjs";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
+import NoAvatar from "@/asset/no_avatar.svg";
 import FormError from "@/components/widget/form-error";
 import PrefectureSelect from "@/components/widget/prefecture-select";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
 import UserAvatar from "@/components/widget/user-avatar";
 import { deleteAccount, updateAccount } from "@/lib/action/account-action";
+
 import "cropperjs/dist/cropper.css";
 
 dayjs.extend(utc);
@@ -135,6 +138,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
 
 function AvatarEdit({ user }: { user: User }) {
   const cropperRef = useRef<Cropper>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [rawAvatarImage, setRawAvatarImage] = useState<string | null>(null);
   const [readRawImageError, setReadRawImageError] = useState<string>("");
   const [newAvatar, setNewAvatar] = useState<{
@@ -142,6 +146,7 @@ function AvatarEdit({ user }: { user: User }) {
     avatar64: string;
     avatar32: string;
   } | null>(null);
+  const [deleteAvatar, setDeleteAvatar] = useState(false);
 
   const onSetRawAvatarImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -161,6 +166,13 @@ function AvatarEdit({ user }: { user: User }) {
     };
 
     reader.readAsDataURL(files[0]);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    if (document) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.close();
+    }
   }, []);
 
   const onSetAvatarImage = useCallback(() => {
@@ -188,12 +200,21 @@ function AvatarEdit({ user }: { user: User }) {
         })
         .toDataURL("image/png"),
     });
+    setDeleteAvatar(false);
 
-    if (document) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.close();
+    closeModal();
+  }, [rawAvatarImage, closeModal]);
+
+  const onDeleteAvatarImage = useCallback(() => {
+    setDeleteAvatar(true);
+    setRawAvatarImage(null);
+    setNewAvatar(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
-  }, [rawAvatarImage]);
+
+    closeModal();
+  }, [closeModal]);
 
   useEffect(() => {
     if (document) {
@@ -228,6 +249,8 @@ function AvatarEdit({ user }: { user: User }) {
         {newAvatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img width={128} height={128} src={newAvatar.avatar128} alt="アバター" />
+        ) : deleteAvatar ? (
+          <Image src={NoAvatar} alt="アバター" />
         ) : (
           <UserAvatar user={user} size={128} />
         )}
@@ -238,11 +261,17 @@ function AvatarEdit({ user }: { user: User }) {
             <input type="hidden" name="avatar32" value={newAvatar.avatar32} />
           </>
         )}
+        {!newAvatar && user.avatar && deleteAvatar && (
+          <>
+            <input type="hidden" name="deleteAvatar" value="true" />
+          </>
+        )}
       </button>
       <dialog id="avatar-upload-modal" className="modal">
         <div className="modal-box">
           <h4>アバター変更</h4>
           <input
+            ref={fileInputRef}
             type="file"
             className="file-input file-input-bordered w-full"
             accept="image/png,image/jpeg"
@@ -258,15 +287,14 @@ function AvatarEdit({ user }: { user: User }) {
               変更
             </button>
             <button
+              disabled={!(!deleteAvatar && (newAvatar || user.avatar))}
               type="button"
-              className="btn btn-ghost"
-              onClick={() => {
-                if (document) {
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                  (document.getElementById("avatar-upload-modal") as HTMLFormElement)?.close();
-                }
-              }}
+              className="btn btn-warning"
+              onClick={onDeleteAvatarImage}
             >
+              削除
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={closeModal}>
               キャンセル
             </button>
           </div>

@@ -126,6 +126,28 @@ export async function saveAvatarImage(
   return nanoId;
 }
 
+export async function deleteAvatarImage(accountId: string) {
+  const listObjectsCommand = new ListObjectsV2Command({
+    Bucket: bucketName,
+    Prefix: `user-image/${accountId}/avatar/`,
+    MaxKeys: 500,
+  });
+  const objects = await s3Client.send(listObjectsCommand);
+  const currentAvatars = objects.Contents;
+  if (currentAvatars && currentAvatars.length > 0) {
+    const deleteObjectsCommand = new DeleteObjectsCommand({
+      Bucket: bucketName,
+      Delete: {
+        Objects: currentAvatars.map((c) => ({
+          Key: c.Key,
+        })),
+        Quiet: true,
+      },
+    });
+    await s3Client.send(deleteObjectsCommand);
+  }
+}
+
 async function saveAvatarImageFile(accountId: string, avatarId: string, imageDataUrl: string, size: string) {
   const blob = await (await fetch(imageDataUrl)).blob();
   const mediaType = blob.type;
