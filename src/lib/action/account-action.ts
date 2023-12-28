@@ -293,6 +293,7 @@ export async function deleteAccount(prevState: CreateAccountState, formData: For
           data: {
             userName: accountId, //ユーザー名が再利用できるように
             updatedDate: new Date(),
+            avatar: null,
             deleted: true,
           },
           where: {
@@ -304,9 +305,10 @@ export async function deleteAccount(prevState: CreateAccountState, formData: For
             userId: accountId,
           },
         });
+        await deleteAvatarImage(accountId);
       },
       {
-        timeout: 60_000,
+        timeout: 100_000,
       },
     );
   } catch (e) {
