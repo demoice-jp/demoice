@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from ".prisma/client";
 import { nanoid } from "nanoid";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -30,6 +31,7 @@ const FillImageSchema = z.object({
       height: z.number(),
     })
     .nullish(),
+  deleteImage: z.coerce.boolean().nullish(),
 });
 
 const CommitSchema = z.object({
@@ -266,6 +268,22 @@ export async function fillPolicyDraftImage(
   }
 
   if (!parsedInput.data.image) {
+    if (parsedInput.data.deleteImage) {
+      await prisma.content.update({
+        select: {
+          id: true,
+        },
+        where: {
+          id: parsedInput.data.id,
+          authorId: session.user!.accountId,
+          commitDate: null,
+        },
+        data: {
+          image: Prisma.DbNull,
+        },
+      });
+    }
+
     redirect(`/policy/create/${parsedInput.data.id}/confirm`);
   }
 

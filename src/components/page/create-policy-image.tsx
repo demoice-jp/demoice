@@ -22,8 +22,10 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
   const [readError, setReadError] = useState("");
   const cropperRef = useRef<Cropper>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [savedImage, setSavedImage] = useState<ImageSchema>(null);
   const [formState, dispatch] = useFormState(fillPolicyDraftImage, {});
+  const [deleteImage, setDeleteImage] = useState(false);
 
   useEffect(() => {
     if (draft.image) {
@@ -49,9 +51,19 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
         return;
       }
       setRawImageUrl(dataUrl);
+      setDeleteImage(false);
     };
 
     reader.readAsDataURL(files[0]);
+  }, []);
+
+  const onDeleteImage = useCallback(() => {
+    setSavedImage(null);
+    setRawImageUrl(null);
+    setDeleteImage(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }, []);
 
   useEffect(() => {
@@ -73,7 +85,7 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
   }, [rawImageUrl]);
 
   return (
-    <>
+    <div className="flex-col-center mb-8">
       <div className="flex flex-col w-screen px-6 md:w-[36rem]">
         <form
           className="flex flex-col gap-1.5"
@@ -95,6 +107,7 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
               id: draft.id,
               image,
               size,
+              deleteImage: deleteImage,
             });
           }}
         >
@@ -114,6 +127,7 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
         </form>
         <div className="mt-4">
           <input
+            ref={fileInputRef}
             type="file"
             className="file-input file-input-bordered w-full"
             accept="image/png,image/jpeg"
@@ -142,6 +156,11 @@ export default function CreatePolicyImage({ draft }: CreatePolicyImageProp) {
           </div>
         </div>
       )}
-    </>
+      {(rawImageUrl || savedImage) && (
+        <button type="button" className="btn btn-warning" onClick={onDeleteImage}>
+          画像を削除
+        </button>
+      )}
+    </div>
   );
 }
