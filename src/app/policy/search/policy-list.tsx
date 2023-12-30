@@ -24,7 +24,7 @@ export default async function PolicyList({ query, page }: PolicyListProp) {
           <Link key={policy.id} href={`/policy/${policy.id}/${encodeURI(policy.title)}`}>
             <div
               className={clsx(
-                "flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-900",
+                "flex flex-col rounded-lg overflow-hidden bg-white dark:bg-black",
                 policy.image && "h-[21rem]",
                 !policy.image && "h-32",
                 "md:h-64",
@@ -54,7 +54,7 @@ export default async function PolicyList({ query, page }: PolicyListProp) {
             query,
             page: String(page + 1),
           }).toString()}`}
-          className={clsx("btn  btn-primary", !policies.isLast && "invisible")}
+          className={clsx("btn  btn-primary", policies.isLast && "invisible")}
         >
           次のページ
         </Link>

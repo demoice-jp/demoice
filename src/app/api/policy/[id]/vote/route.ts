@@ -3,7 +3,7 @@ import { User } from "@prisma/client";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/orm/client";
-import ExpectedError from "@/lib/util/ExpectedError";
+import ExpectedError from "@/lib/util/expected-error";
 
 const VoteSchema = z.object({
   policyId: z.string().length(21),

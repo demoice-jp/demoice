@@ -4,7 +4,7 @@ import Image from "next/image";
 import NoAvatar from "@/asset/no_avatar.svg";
 
 type UserAvatarProp = {
-  user: User;
+  user: Pick<User, "id" | "avatar">;
   size?: 128 | 64 | 32;
 };
 
@@ -19,7 +19,7 @@ export default function UserAvatar({ user, size }: UserAvatarProp) {
   }
 
   return (
-    <div className="avatar max-h-full max-w-full">
+    <div className="avatar h-full w-full max-h-full max-w-full">
       <div className="rounded-full overflow-hidden">{img}</div>
     </div>
   );

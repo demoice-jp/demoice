@@ -90,6 +90,10 @@
     @apply rounded font-normal min-h-[2.5rem] h-10;
   }
 
+  .btn-sm {
+    @apply min-h-[2rem] h-8;
+  }
+
   .select {
     @apply h-10 min-h-[2.5rem] rounded;
   }

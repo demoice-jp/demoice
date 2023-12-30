@@ -20,6 +20,7 @@ model User {
   idProvider  ProviderId[]
   content     Content[]
   policyVote  PolicyVote[]
+  Comment     Comment[]
 
   @@map("users")
 }
@@ -108,4 +109,23 @@ enum Vote {
   negative
 
   @@map("vote")
+}
+
+model Comment {
+  id         String      @id @db.Char(21)
+  parentType ContentType
+  parentId   String      @map("parent_id") @db.Char(21)
+  author     User        @relation(fields: [authorId], references: [id])
+  authorId   String      @map("authorId") @db.Char(21)
+  postedDate DateTime    @map("posted_date") @db.Timestamp(0)
+  content    String      @db.Text
+
+  @@index([parentType, parentId, postedDate(sort: Desc)])
+  @@map("comments")
+}
+
+enum ContentType {
+  policy
+
+  @@map("content_type")
 }
