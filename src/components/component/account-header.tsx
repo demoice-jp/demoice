@@ -16,7 +16,7 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
   if (user) {
     return (
       <div className="dropdown dropdown-end">
-        <div tabIndex={0} role="button" className="btn btn-ghost rounded-full btn-sm w-12 h-12 px-1">
+        <div tabIndex={0} role="button" className="btn btn-ghost rounded-full btn-sm w-12 h-12 p-1">
           <UserAvatar user={user} size={64} />
         </div>
         <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">

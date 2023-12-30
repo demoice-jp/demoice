@@ -112,7 +112,7 @@ export async function searchPolicy({ query, from, size }: SearchPolicyProp) {
   const docHits: PolicyHit[] = hits.hits;
   return {
     total,
-    isLast: (from || 0) + docHits.length < total,
+    isLast: (from || 0) + docHits.length >= total,
     policies: docHits.map((doc) => {
       return {
         id: doc._id,

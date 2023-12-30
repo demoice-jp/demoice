@@ -26,7 +26,7 @@ export default async function Header() {
             <HeaderSearch />
             <div className={clsx("flex items-center", !user && "hidden md:flex")}>
               <Link className="btn btn-primary btn-sm min-h-[2.25rem] h-9" href="/policy/create">
-                <span className="hidden md:inline">新規投稿</span>
+                <span className="hidden md:inline">投稿する</span>
                 <div className="md:hidden">
                   <span className="material-symbols-outlined">add</span>
                 </div>
