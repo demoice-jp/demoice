@@ -1,7 +1,7 @@
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
 import { saveContentImage } from "@/lib/data/image";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export type ImagePostResponse = {
   location: string;

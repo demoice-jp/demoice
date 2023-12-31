@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { User } from "@prisma/client";
 import { auth } from "@/lib/auth/auth";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export const getUser = cache(async (accountId?: string) => {
   let id = accountId;

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import { PublicUser, toPublicUser } from "@/lib/data/user";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export type Comment = {
   id: string;

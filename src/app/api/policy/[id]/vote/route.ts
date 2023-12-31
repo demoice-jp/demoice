@@ -2,7 +2,7 @@ import { PolicyVote } from ".prisma/client";
 import { User } from "@prisma/client";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 import ExpectedError from "@/lib/util/expected-error";
 
 const VoteSchema = z.object({

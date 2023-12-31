@@ -2,7 +2,7 @@ import { cache } from "react";
 import { Policy } from ".prisma/client";
 import { Client } from "@opensearch-project/opensearch";
 import { Content } from "@prisma/client";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 const node = process.env.OPENSEARCH_NODE_URLS;
 if (!node) {
@@ -71,6 +71,23 @@ type SearchPolicyProp = {
   query: string;
   from?: number;
   size?: number;
+  sort: {
+    prop: "created" | "_score";
+    order: "asc" | "desc";
+  }[];
+};
+
+export type PolicySummary = {
+  id: string;
+  title: string;
+  contentString: string;
+  image: null | {
+    src: string;
+    size: {
+      width: number;
+      height: number;
+    };
+  };
 };
 
 type PolicyHit = {
@@ -88,7 +105,7 @@ type PolicyHit = {
   };
 };
 
-export async function searchPolicy({ query, from, size }: SearchPolicyProp) {
+export async function searchPolicy({ query, from, size, sort }: SearchPolicyProp) {
   const searchResponse = await client.search({
     index: "policy",
     body: {
@@ -100,6 +117,9 @@ export async function searchPolicy({ query, from, size }: SearchPolicyProp) {
           zero_terms_query: "all",
         },
       },
+      sort: sort.map((s) => ({
+        [s.prop]: { order: s.order },
+      })),
       from: from || 0,
       size: size || 10,
     },
