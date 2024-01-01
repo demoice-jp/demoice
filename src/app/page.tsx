@@ -5,6 +5,8 @@ import { searchPolicy } from "@/lib/data/policy";
 
 const POLICY_SIZE = 6;
 
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   return (
     <main className="flex-col-center py-6">

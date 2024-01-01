@@ -14,6 +14,8 @@ type PolicyListProp = {
   order: SearchPolicyProp["sort"];
 };
 
+export const dynamic = "force-dynamic";
+
 async function PolicyList({ query, page, order }: PolicyListProp) {
   const policies = await searchPolicy({
     query,

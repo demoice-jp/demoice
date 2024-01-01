@@ -10,6 +10,8 @@ type PageProp = {
   };
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({ params: { draftId } }: PageProp) {
   const policy = await getPolicyByContentId(draftId);
   if (!policy) {

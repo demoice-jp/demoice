@@ -14,6 +14,8 @@ type PageProp = {
   };
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({ params: { policyId } }: PageProp) {
   const session = await auth();
   const accountId = session?.user?.accountId;

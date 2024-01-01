@@ -4,6 +4,8 @@ import FormError from "@/components/widget/form-error";
 import LineButton from "@/components/widget/line-button";
 import { signIn } from "@/lib/auth/auth";
 
+export const dynamic = "force-dynamic";
+
 function errorCodeToMessage(code: string) {
   switch (code) {
     case "NO_ACCOUNT":

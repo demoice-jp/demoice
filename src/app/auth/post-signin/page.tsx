@@ -3,6 +3,8 @@ import PostSignin from "@/components/page/post-signin";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { auth } from "@/lib/auth/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({
   searchParams,
 }: {

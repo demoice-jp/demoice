@@ -11,6 +11,8 @@ type PageProp = {
   };
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({ params: { draftId } }: PageProp) {
   const draft = await getContent(draftId);
   if (!draft) {
