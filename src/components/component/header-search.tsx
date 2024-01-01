@@ -18,6 +18,7 @@ export default function HeaderSearch() {
     e.preventDefault();
     const params = new URLSearchParams({
       query: query,
+      order: "score",
     });
     router.push(`/policy/search?${params.toString()}`);
   };

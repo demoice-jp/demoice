@@ -1,65 +1,13 @@
 /* eslint-disable no-console */
-import { Client } from "@opensearch-project/opensearch";
 
-const node = process.env.OPENSEARCH_NODE_URLS;
-if (!node) {
-  throw Error("OPENSEARCH_NODE_URLS環境変数がありません");
-}
-
-const client = new Client({
-  node: node.split(","),
-});
+import dayjs from "dayjs";
+import opensearch, { createPolicyIndex, setupPolicyIndex } from "../src/lib/db/opensearch";
 
 async function init() {
+  const indexName = `policy-${dayjs().format("YYYYMMDDHHmm")}`;
   try {
-    await client.indices.create({
-      index: "policy-yyyymmddhhmm",
-      body: {
-        settings: {
-          number_of_shards: 1,
-          number_of_replicas: 0,
-          analysis: {
-            analyzer: {
-              sudachi_custom_analyzer: {
-                type: "custom",
-                tokenizer: "sudachi_c_tokenizer",
-                filter: ["sudachi_split", "sudachi_normalizedform", "sudachi_part_of_speech", "sudachi_ja_stop"],
-              },
-            },
-            tokenizer: {
-              sudachi_c_tokenizer: {
-                type: "sudachi_tokenizer",
-                split_mode: "C",
-                discard_punctuation: true,
-              },
-            },
-          },
-        },
-        mappings: {
-          dynamic: "strict",
-          properties: {
-            title: {
-              type: "text",
-              analyzer: "sudachi_custom_analyzer",
-            },
-            contentString: {
-              type: "text",
-              analyzer: "sudachi_custom_analyzer",
-            },
-            image: {
-              type: "object",
-              enabled: false,
-            },
-            created: {
-              type: "date",
-            },
-            updated: {
-              type: "date",
-            },
-          },
-        },
-      },
-    });
+    await createPolicyIndex(indexName);
+    await setupPolicyIndex(indexName);
     console.log(`policyIndexが作成されました`);
   } catch (e) {
     if (e instanceof Error) {
@@ -69,8 +17,8 @@ async function init() {
   }
 
   try {
-    await client.indices.put_alias({
-      index: "policy-yyyymmddhhmm",
+    await opensearch.indices.putAlias({
+      index: indexName,
       name: "policy",
     });
     console.log(`policyAliasが作成されました`);

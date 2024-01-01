@@ -75,9 +75,11 @@ model Policy {
   updatedDate   DateTime        @map("updated_date") @db.Timestamp(0)
   votePositive  Int             @default(0) @map("vote_positive")
   voteNegative  Int             @default(0) @map("vote_negative")
+  trendScore    Int             @default(0) @map("trend_score")
   policyVersion PolicyVersion[]
   policyVote    PolicyVote[]
 
+  @@index([createdDate])
   @@map("policies")
 }
 
@@ -121,6 +123,7 @@ model Comment {
   content    String      @db.Text
 
   @@index([parentType, parentId, postedDate(sort: Desc)])
+  @@index([parentType, parentId, authorId, postedDate(sort: Desc)])
   @@map("comments")
 }
 

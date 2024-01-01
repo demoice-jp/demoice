@@ -1,6 +1,7 @@
 import { PolicyVote } from ".prisma/client";
 import { User } from "@prisma/client";
 import z from "zod";
+import { TREND_SCORE_VOTE } from "@/const";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
 import ExpectedError from "@/lib/util/expected-error";
@@ -127,6 +128,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
                 votePositive: {
                   decrement: 1,
                 },
+                trendScore: {
+                  decrement: TREND_SCORE_VOTE,
+                },
               },
             });
           } else if (currentVote.vote === "negative") {
@@ -139,6 +143,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
               data: {
                 voteNegative: {
                   decrement: 1,
+                },
+                trendScore: {
+                  decrement: TREND_SCORE_VOTE,
                 },
               },
             });
@@ -174,6 +181,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
                 votePositive: {
                   increment: 1,
                 },
+                trendScore: {
+                  increment: TREND_SCORE_VOTE,
+                },
               },
             });
           } else if (requestData.vote === "negative") {
@@ -186,6 +196,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
               data: {
                 voteNegative: {
                   increment: 1,
+                },
+                trendScore: {
+                  increment: TREND_SCORE_VOTE,
                 },
               },
             });

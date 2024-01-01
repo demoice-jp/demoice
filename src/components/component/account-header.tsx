@@ -41,7 +41,7 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
         >
           ログイン
         </Link>
-        <Link className="btn btn-sm" href="/auth/signup">
+        <Link className="btn btn-sm hidden sm:inline-flex" href="/auth/signup">
           会員登録
         </Link>
       </div>
