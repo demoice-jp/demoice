@@ -3,6 +3,8 @@ import UpdateAccountForm from "@/components/page/update-account-form";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { getUser } from "@/lib/data/user";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const user = await getUser();
   if (!user) {

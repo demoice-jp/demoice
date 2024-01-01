@@ -3,6 +3,8 @@ import CreatePolicy from "@/components/page/create-policy";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { getContentDraftSummaries } from "@/lib/data/content";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const drafts = await getContentDraftSummaries();
 

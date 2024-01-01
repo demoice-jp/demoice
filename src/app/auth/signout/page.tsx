@@ -1,6 +1,8 @@
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { signOut } from "@/lib/auth/auth";
 
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   return (
     <div className="flex-col-center">

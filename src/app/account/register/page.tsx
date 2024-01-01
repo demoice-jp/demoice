@@ -4,6 +4,8 @@ import CreateAccountForm from "@/components/page/create-account-form";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import { auth } from "@/lib/auth/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const session = await auth();
 

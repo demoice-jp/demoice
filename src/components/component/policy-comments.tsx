@@ -5,9 +5,9 @@ import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFormState } from "react-dom";
-import useSWRImmutable from "swr/immutable";
-import useSWRInfinite from "swr/infinite";
+import useSWR from "swr";
 import { CommentResponse } from "@/app/api/policy/[id]/comment/route";
+import { useInfiniteLoad } from "@/components/hooks";
 import Comment from "@/components/widget/comment";
 import FormError from "@/components/widget/form-error";
 import SubmitButton from "@/components/widget/submit-button";
@@ -93,9 +93,14 @@ function CommentPost({ id, user, onPost }: { id: string; user?: User; onPost: on
 }
 
 function CommentCount({ id, posted }: { id: string; posted: CommentType[] }) {
-  const { data, isLoading, error } = useSWRImmutable<{
+  const { data, isLoading, error } = useSWR<{
     count: number;
-  }>(`/api/policy/${id}/comment/count`, swrFetcher);
+  }>(`/api/policy/${id}/comment/count`, swrFetcher, {
+    revalidateOnReconnect: false,
+    revalidateOnFocus: false,
+    revalidateIfStale: true,
+    revalidateOnMount: true,
+  });
 
   let inner = null;
   if (isLoading) {
@@ -115,27 +120,21 @@ function CommentCount({ id, posted }: { id: string; posted: CommentType[] }) {
 }
 
 function Comments({ id, posted }: { id: string; posted: CommentType[] }) {
-  const { data, error, isLoading, mutate, size, setSize } = useSWRInfinite<CommentResponse>(
-    (pageIndex, previousPageData: CommentResponse | null) => {
+  const getUrl = useCallback(
+    (pageIndex: number, previousPageData: CommentResponse | null) => {
       if (previousPageData && previousPageData.isLast) {
         return null;
       }
       return `/api/policy/${id}/comment?page=${pageIndex}`;
     },
-    swrFetcher,
-    {
-      revalidateFirstPage: false,
-      revalidateOnReconnect: false,
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-      errorRetryCount: 0,
-    },
+    [id],
   );
 
-  const lastData = data && data.length > 0 ? data[data.length - 1] : null;
+  const { data, isLoading, error, readMore } = useInfiniteLoad(getUrl);
+
+  const lastData = data.length > 0 ? data[data.length - 1] : null;
   const canReadMore = !(lastData && lastData.isLast);
-  const empty = posted.length === 0 && data && data.length > 0 && data[0].values.length === 0;
-  const loading = isLoading || (data && data.length < size);
+  const empty = posted.length === 0 && data.length > 0 && data[0].values.length === 0;
 
   return (
     <div>
@@ -148,28 +147,28 @@ function Comments({ id, posted }: { id: string; posted: CommentType[] }) {
           .map((d) => d.values)
           .flat()
           .map((d) => <Comment key={d.id} comment={d} />)}
-      {error && (
+      {!!error && (
         <div className="flex justify-center w-full pt-2 pb-6 text-red-500 dark:text-red-600">
           コメントの読み込みに失敗しました
         </div>
       )}
-      {loading ? (
+      {isLoading ? (
         <div className="w-full p-4">
           <div className="skeleton rounded h-[5rem] w-full" />
         </div>
       ) : (
-        (canReadMore || error) && (
+        (canReadMore || !!error) && (
           <div className="flex p-4 justify-center w-full">
             {canReadMore ? (
-              <button className="btn btn-sm btn-primary" onClick={() => setSize(size + 1)}>
+              <button className="btn btn-sm btn-primary" onClick={() => readMore()}>
                 さらに表示
               </button>
             ) : (
-              error && (
+              !!error && (
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={() => {
-                    mutate();
+                    readMore();
                   }}
                 >
                   再読み込み
