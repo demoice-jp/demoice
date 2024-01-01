@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth/auth";
 import { ContentTitle, fillContent } from "@/lib/data/content";
 import { deleteImages, deleteUnlinkImages, saveContentImage } from "@/lib/data/image";
 import { indexPolicy } from "@/lib/data/policy";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 const MAX_DRAFT_COUNT = 10;
 

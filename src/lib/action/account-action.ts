@@ -10,7 +10,7 @@ import { auth, signOut } from "@/lib/auth/auth";
 import IdProvider from "@/lib/data/id-provider";
 import { deleteAvatarImage, saveAvatarImage } from "@/lib/data/image";
 import prefecture from "@/lib/data/prefecture";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 dayjs.extend(customParseFormat);
 

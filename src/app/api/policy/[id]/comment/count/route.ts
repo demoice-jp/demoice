@@ -1,4 +1,4 @@
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const count = await prisma.comment.count({

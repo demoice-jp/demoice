@@ -4,7 +4,7 @@ import NextAuth, { Session } from "next-auth";
 
 import { NextAuthConfig } from "next-auth";
 import IdProvider from "@/lib/data/id-provider";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export const config = {
   providers: [

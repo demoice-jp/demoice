@@ -5,7 +5,7 @@ import DOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import z from "zod";
 import { auth } from "@/lib/auth/auth";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 export type ContentTitle = Pick<Content, "id" | "title" | "authorId" | "contentString" | "image">;
 

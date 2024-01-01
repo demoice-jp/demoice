@@ -1,17 +1,8 @@
 import { cache } from "react";
 import { Policy } from ".prisma/client";
-import { Client } from "@opensearch-project/opensearch";
 import { Content } from "@prisma/client";
-import prisma from "@/lib/orm/client";
-
-const node = process.env.OPENSEARCH_NODE_URLS;
-if (!node) {
-  throw Error("OPENSEARCH_NODE_URLS環境変数がありません");
-}
-
-const client = new Client({
-  node: node.split(","),
-});
+import opensearch from "@/lib/db/opensearch";
+import prisma from "@/lib/db/prisma";
 
 export const getPolicyByContentId = cache(async (contentId: string) => {
   return prisma.policy.findUnique({
@@ -54,7 +45,7 @@ export const getMyVote = cache(async (policyId: string, accountId?: string) => {
 });
 
 export async function indexPolicy(policy: Policy & { content: Pick<Content, "title" | "image" | "contentString"> }) {
-  await client.index({
+  await opensearch.index({
     index: "policy",
     id: policy.id,
     body: {
@@ -62,15 +53,30 @@ export async function indexPolicy(policy: Policy & { content: Pick<Content, "tit
       contentString: policy.content.contentString,
       image: policy.content.image,
       created: policy.createdDate.getTime(),
-      updated: policy.updatedDate.getTime(),
+      votes: policy.votePositive + policy.voteNegative,
+      trend: policy.trendScore,
     },
   });
 }
 
-type SearchPolicyProp = {
+export type SearchPolicyProp = {
   query: string;
   from?: number;
   size?: number;
+  sort: "created" | "votes" | "trend" | "score";
+};
+
+export type PolicySummary = {
+  id: string;
+  title: string;
+  contentString: string;
+  image: null | {
+    src: string;
+    size: {
+      width: number;
+      height: number;
+    };
+  };
 };
 
 type PolicyHit = {
@@ -88,8 +94,34 @@ type PolicyHit = {
   };
 };
 
-export async function searchPolicy({ query, from, size }: SearchPolicyProp) {
-  const searchResponse = await client.search({
+export async function searchPolicy({ query, from, size, sort }: SearchPolicyProp) {
+  const order: Partial<{ [key in "trend" | "created" | "votes" | "_score"]: { order: "asc" | "desc" } }>[] = [];
+  if (sort === "created") {
+  } else if (sort === "votes") {
+    order.push({
+      votes: { order: "desc" },
+    });
+  } else if (sort === "score") {
+    order.push({
+      _score: { order: "desc" },
+    });
+    order.push({
+      votes: { order: "desc" },
+    });
+  } else {
+    // トレンド順
+    order.push({
+      trend: { order: "desc" },
+    });
+    order.push({
+      votes: { order: "desc" },
+    });
+  }
+  order.push({
+    created: { order: "desc" },
+  });
+
+  const searchResponse = await opensearch.search({
     index: "policy",
     body: {
       query: {
@@ -100,6 +132,7 @@ export async function searchPolicy({ query, from, size }: SearchPolicyProp) {
           zero_terms_query: "all",
         },
       },
+      sort: order,
       from: from || 0,
       size: size || 10,
     },

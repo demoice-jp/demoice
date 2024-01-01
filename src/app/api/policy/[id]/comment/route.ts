@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Comment } from "@/lib/action/policy-action";
 import { toPublicUser } from "@/lib/data/user";
-import prisma from "@/lib/orm/client";
+import prisma from "@/lib/db/prisma";
 
 const TAKE = 5;
 
