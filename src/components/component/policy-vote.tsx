@@ -1,30 +1,33 @@
 "use client";
 
 import React from "react";
-import { Policy, PolicyVote } from ".prisma/client";
+import { Policy } from ".prisma/client";
 import { Content } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import useSWRImmutable from "swr/immutable";
+import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { VoteSuccess } from "@/app/api/policy/[id]/vote/route";
+import { swrFetcher } from "@/lib/util/util";
 
 type PolicyVoteProp = {
   accountId?: string;
   policy: Policy & { content: Content };
-  myVote: PolicyVote["vote"] | null;
 };
 
-export default function PolicyVote({ policy, accountId, myVote }: PolicyVoteProp) {
+export default function PolicyVote({ policy, accountId }: PolicyVoteProp) {
   const router = useRouter();
 
   const swrKey = `/api/policy/${policy.id}/vote`;
-  const { data: latestVote } = useSWRImmutable(swrKey, () => {
-    return Promise.resolve({
-      votePositive: policy.votePositive,
-      voteNegative: policy.voteNegative,
-      myVote: myVote,
-    });
+  const {
+    data: latestVote,
+    isLoading,
+    error,
+  } = useSWR<VoteSuccess>(swrKey, swrFetcher, {
+    revalidateIfStale: true,
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
   });
   const { trigger, isMutating } = useSWRMutation(
     swrKey,
@@ -59,11 +62,26 @@ export default function PolicyVote({ policy, accountId, myVote }: PolicyVoteProp
     },
   );
 
-  const voteCount = latestVote || {
-    votePositive: policy.votePositive,
-    voteNegative: policy.voteNegative,
-    myVote: myVote,
-  };
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-[6rem]">
+        <div className="skeleton flex h-6 mb-1" />
+        <div className="flex justify-between">
+          <div className="skeleton h-8 w-24" />
+          <div className="skeleton h-8 w-24" />
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="h-[6rem] flex items-center justify-center text-sm text-red-500 dark:text-red-600">
+        投票データの取得に失敗しました。
+      </div>
+    );
+  }
+
+  const voteCount = latestVote!;
 
   const onVote = async (vote: "positive" | "negative") => {
     if (!accountId) {

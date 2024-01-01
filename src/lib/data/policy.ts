@@ -26,24 +26,6 @@ export const getPolicyById = cache(async (policyId: string) => {
   });
 });
 
-export const getMyVote = cache(async (policyId: string, accountId?: string) => {
-  if (!accountId) {
-    return null;
-  }
-
-  return prisma.policyVote.findUnique({
-    select: {
-      vote: true,
-    },
-    where: {
-      voterId_policyId: {
-        policyId: policyId,
-        voterId: accountId,
-      },
-    },
-  });
-});
-
 export async function indexPolicy(policy: Policy & { content: Pick<Content, "title" | "image" | "contentString"> }) {
   await opensearch.index({
     index: "policy",

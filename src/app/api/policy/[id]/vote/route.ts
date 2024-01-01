@@ -18,6 +18,62 @@ export type VoteSuccess = {
   myVote: PolicyVote["vote"];
 };
 
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const session = await auth();
+
+  const policy = await prisma.policy.findUnique({
+    select: {
+      id: true,
+      votePositive: true,
+      voteNegative: true,
+    },
+    where: {
+      id: params.id,
+    },
+  });
+
+  if (!policy) {
+    return Response.json(
+      {
+        message: "政策が見つかりません",
+      },
+      {
+        status: 404,
+      },
+    );
+  }
+
+  let myVote = null;
+  if (session && session?.valid && session.user?.accountId) {
+    const vote = await prisma.policyVote.findUnique({
+      select: {
+        vote: true,
+      },
+      where: {
+        voterId_policyId: {
+          policyId: policy.id,
+          voterId: session.user.accountId,
+        },
+      },
+    });
+    if (vote) {
+      myVote = vote.vote;
+    }
+  }
+
+  return Response.json(
+    {
+      policyId: policy.id,
+      votePositive: policy.votePositive,
+      voteNegative: policy.voteNegative,
+      myVote: myVote,
+    },
+    {
+      status: 200,
+    },
+  );
+}
+
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   let requestJson;
   try {

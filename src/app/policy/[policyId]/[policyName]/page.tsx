@@ -5,7 +5,7 @@ import BackButton from "@/components/widget/back-button";
 import ContentImage from "@/components/widget/content-image";
 import Toast from "@/components/widget/toast";
 import { auth } from "@/lib/auth/auth";
-import { getMyVote, getPolicyById } from "@/lib/data/policy";
+import { getPolicyById } from "@/lib/data/policy";
 import { getUser } from "@/lib/data/user";
 
 type PageProp = {
@@ -20,11 +20,7 @@ export default async function Page({ params: { policyId } }: PageProp) {
   const session = await auth();
   const accountId = session?.user?.accountId;
 
-  const [policy, myVote, user] = await Promise.all([
-    getPolicyById(policyId),
-    getMyVote(policyId, accountId),
-    getUser(accountId),
-  ]);
+  const [policy, user] = await Promise.all([getPolicyById(policyId), getUser(accountId)]);
 
   return (
     <div className="w-full p-4">
@@ -41,7 +37,7 @@ export default async function Page({ params: { policyId } }: PageProp) {
               <h1>{policy.content.title}</h1>
               {policy.content.image && <ContentImage className="w-full mb-4" contentImage={policy.content.image} />}
               <div className="mb-4 lg:hidden">
-                <PolicyVote policy={policy} accountId={accountId} myVote={(myVote && myVote.vote) || null} />
+                <PolicyVote policy={policy} accountId={accountId} />
               </div>
               <section dangerouslySetInnerHTML={{ __html: policy.content.contentHtml! }} />
             </article>
@@ -50,7 +46,7 @@ export default async function Page({ params: { policyId } }: PageProp) {
             </div>
           </div>
           <div className="fixed top-[6.5rem] w-[20rem] right-[1rem] bg-white dark:bg-black rounded p-4 hidden lg:block">
-            <PolicyVote policy={policy} accountId={accountId} myVote={(myVote && myVote.vote) || null} />
+            <PolicyVote policy={policy} accountId={accountId} />
           </div>
         </main>
       )}
