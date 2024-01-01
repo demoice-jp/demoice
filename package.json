@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "dev-reindex-opensearch": "dotenv -e .env.local -- node .next/server/reindexOpensearch.js",
+    "dev-decrement-trend-score": "dotenv -e .env.local -- node .next/server/decrementTrendScore.js",
     "dev-services": "docker compose -f ./dev-services/docker-compose.yml --env-file .env.local up -d",
     "dev-db-migrate": "dotenv -e .env.local -- npx prisma migrate dev",
     "dev-db-push": "dotenv -e .env.local -- npx prisma db push",

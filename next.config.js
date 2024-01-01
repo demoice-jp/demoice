@@ -12,6 +12,7 @@ const nextConfig = {
           return {
             ...entries,
             reindexOpensearch: path.resolve(process.cwd(), "src/worker/reindex-opensearch.ts"),
+            decrementTrendScore: path.resolve(process.cwd(), "src/worker/decrement-trend-score.ts"),
           };
         },
       };
