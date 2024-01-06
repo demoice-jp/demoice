@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <div className="flex-col-center">
-      <Breadcrumbs currentPage="会員情報更新" />
+      <Breadcrumbs currentPage="アカウント更新" />
       <main className="flex-col-center">
         <section className="flex-col-center px-4 py-4 max-w-4xl">
           <UpdateAccountForm user={user} />

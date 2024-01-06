@@ -22,7 +22,10 @@ export default function AccountHeader({ user }: AccountHeaderProp) {
         <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
           <div className="truncate w-full mb-1 mt-0.5 mx-0.5 font-bold">{user.userName}</div>
           <li>
-            <Link href="/account/update">会員情報更新</Link>
+            <Link href="/account/activity">アクティビティ</Link>
+          </li>
+          <li>
+            <Link href="/account/update">アカウント更新</Link>
           </li>
           <li>
             <Link href="/auth/signout">ログアウト</Link>

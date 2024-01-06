@@ -42,7 +42,7 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
   return (
     <div className="card w-full p-4 sm:p-7">
       <div className="mb-8">
-        <h3>会員情報更新</h3>
+        <h3>アカウント更新</h3>
         <p className="light-text">以下の項目を入力して下さい。</p>
       </div>
       <form action={updateDispatch}>

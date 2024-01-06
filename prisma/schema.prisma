@@ -95,11 +95,12 @@ model PolicyVersion {
 }
 
 model PolicyVote {
-  voter    User   @relation(fields: [voterId], references: [id])
-  voterId  String @map("voter_id") @db.Char(21)
-  policy   Policy @relation(fields: [policyId], references: [id])
-  policyId String @map("policy_id") @db.Char(21)
-  vote     Vote
+  voter     User     @relation(fields: [voterId], references: [id])
+  voterId   String   @map("voter_id") @db.Char(21)
+  policy    Policy   @relation(fields: [policyId], references: [id])
+  policyId  String   @map("policy_id") @db.Char(21)
+  vote      Vote
+  votedDate DateTime @map("voted_date") @db.Timestamp(0)
 
   @@id([voterId, policyId])
   @@index([policyId])

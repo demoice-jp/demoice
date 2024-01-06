@@ -30,11 +30,11 @@ export function useInfiniteLoad<T>(getUrl: (index: number, previousPageData: T |
       return;
     }
     fetch(url)
-      .then((res) => {
+      .then(async (res) => {
         if (!res.ok) {
           throw res;
         }
-        res.json().then((d: T) => {
+        await res.json().then((d: T) => {
           setData((ds) => [...ds, d]);
         });
       })

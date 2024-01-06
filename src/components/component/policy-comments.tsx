@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { User } from "@prisma/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -159,19 +159,19 @@ function Comments({ id, posted }: { id: string; posted: CommentType[] }) {
       ) : (
         (canReadMore || !!error) && (
           <div className="flex p-4 justify-center w-full">
-            {canReadMore ? (
-              <button className="btn btn-sm btn-primary" onClick={() => readMore()}>
-                さらに表示
+            {!!error ? (
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => {
+                  readMore();
+                }}
+              >
+                再読み込み
               </button>
             ) : (
-              !!error && (
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() => {
-                    readMore();
-                  }}
-                >
-                  再読み込み
+              canReadMore && (
+                <button className="btn btn-sm btn-primary" onClick={() => readMore()}>
+                  さらに表示
                 </button>
               )
             )}

@@ -97,26 +97,7 @@ export default function PolicyVote({ policy, accountId }: PolicyVoteProp) {
 
   return (
     <div className="flex flex-col h-[6rem]">
-      <div className="flex h-6 mb-1">
-        <div
-          style={{
-            flexGrow: voteCount.votePositive,
-          }}
-          className="h-full bg-orange-500 transition-all"
-        />
-        <div
-          style={{
-            flexGrow: voteCount.votePositive || voteCount.voteNegative ? 0 : 1,
-          }}
-          className="h-full bg-gray-300 transition-all"
-        />
-        <div
-          style={{
-            flexGrow: voteCount.voteNegative,
-          }}
-          className="h-full bg-blue-500 transition-all"
-        />
-      </div>
+      <VoteCountBar voteCount={voteCount} />
       <div className="flex justify-between">
         <div>
           <div className="flex items-center">
@@ -159,6 +140,38 @@ export default function PolicyVote({ policy, accountId }: PolicyVoteProp) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function VoteCountBar({
+  voteCount,
+}: {
+  voteCount: {
+    votePositive: number;
+    voteNegative: number;
+  };
+}) {
+  return (
+    <div className="flex h-6 mb-1">
+      <div
+        style={{
+          flexGrow: voteCount.votePositive,
+        }}
+        className="h-full bg-orange-500 transition-all"
+      />
+      <div
+        style={{
+          flexGrow: voteCount.votePositive || voteCount.voteNegative ? 0 : 1,
+        }}
+        className="h-full bg-gray-300 transition-all"
+      />
+      <div
+        style={{
+          flexGrow: voteCount.voteNegative,
+        }}
+        className="h-full bg-blue-500 transition-all"
+      />
     </div>
   );
 }

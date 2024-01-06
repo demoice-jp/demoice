@@ -222,6 +222,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             policyId: policy.id,
             voterId: userId,
             vote: requestData.vote,
+            votedDate: new Date(),
           },
         });
         if (!currentVote) {
