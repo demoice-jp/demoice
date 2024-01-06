@@ -1,5 +1,4 @@
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import { NextRequest } from "next/server";
 
 export async function swrFetcher(url: string) {
   return fetch(url).then((r) => {
@@ -10,17 +9,14 @@ export async function swrFetcher(url: string) {
   });
 }
 
-export function extendDayJsRelativeTime() {
-  dayjs.extend(relativeTime, {
-    thresholds: [
-      { l: "s", r: 1 },
-      { l: "m", r: 1 },
-      { l: "mm", r: 59, d: "minute" },
-      { l: "h", r: 1 },
-      { l: "hh", r: 23, d: "hour" },
-      { l: "d", r: 1 },
-      { l: "dd", r: 29, d: "day" },
-    ],
-  });
-  dayjs.locale("ja");
+export function getPageParam(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const requestedPage = searchParams.get("page");
+  let page = 0;
+  try {
+    if (requestedPage) {
+      page = Number.parseInt(requestedPage);
+    }
+  } catch (e) {}
+  return page;
 }

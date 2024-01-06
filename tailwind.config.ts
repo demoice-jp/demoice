@@ -1,4 +1,5 @@
 import daisyui from "daisyui";
+import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -15,6 +16,11 @@ const config: Config = {
       },
     },
   },
-  plugins: [daisyui],
+  plugins: [
+    daisyui,
+    plugin(function ({ addVariant }) {
+      addVariant("not-first", "&:not(:first-child)");
+    }),
+  ],
 };
 export default config;

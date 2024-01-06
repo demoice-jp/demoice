@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/db/prisma";
+import { getPageParam } from "@/lib/util/util";
 
 const TAKE = 20;
 
@@ -28,17 +29,8 @@ export async function GET(request: NextRequest) {
       message: "ログイン情報がありません",
     };
   }
-
-  const searchParams = request.nextUrl.searchParams;
-  const requestedPage = searchParams.get("page");
-  let skip = 0;
-  try {
-    if (requestedPage) {
-      skip = Number.parseInt(requestedPage) * TAKE;
-    }
-  } catch (e) {}
-
   const accountId = session.user!.accountId;
+  const skip = getPageParam(request) * TAKE;
 
   const votes = await prisma.policyVote.findMany({
     include: {
