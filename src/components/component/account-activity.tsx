@@ -3,6 +3,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import UserCommentActivity from "@/components/component/user-comment-activity";
+import UserPolicyActivity from "@/components/component/user-policy-activity";
 import UserVoteActivity from "@/components/component/user-vote-activity";
 
 export default function AccountActivity() {
@@ -45,7 +46,9 @@ export default function AccountActivity() {
       <div className={clsx(tab !== "comments" && "hidden")}>
         <UserCommentActivity />
       </div>
-      <div className={clsx(tab !== "policies" && "hidden")}>政策投稿はありません</div>
+      <div className={clsx(tab !== "policies" && "hidden")}>
+        <UserPolicyActivity />
+      </div>
     </div>
   );
 }

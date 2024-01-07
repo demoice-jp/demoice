@@ -63,7 +63,7 @@ model Content {
   policy        Policy?
   policyVersion PolicyVersion?
 
-  @@index([authorId])
+  @@index([authorId, commitDate(sort: Desc)])
   @@map("contents")
 }
 
