@@ -25,10 +25,15 @@ export type MyPolicyResponse = {
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.valid) {
-    return {
-      success: false,
-      message: "ログイン情報がありません",
-    };
+    return Response.json(
+      {
+        success: false,
+        message: "ログイン情報がありません",
+      },
+      {
+        status: 401,
+      },
+    );
   }
   const accountId = session.user!.accountId;
   const skip = getPageParam(request) * TAKE;

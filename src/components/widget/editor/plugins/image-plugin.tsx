@@ -95,7 +95,7 @@ export function uploadImage(contentId: string, imageFile: File): Promise<UploadI
           reject(new Error(message));
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
         reject(new Error("画像の挿入に失敗しました"));
       }
     };
@@ -105,7 +105,7 @@ export function uploadImage(contentId: string, imageFile: File): Promise<UploadI
         reader.readAsDataURL(compressedImage);
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
         reject(new Error("画像の圧縮に失敗しました"));
       });
   });

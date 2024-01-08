@@ -4,10 +4,15 @@ import prisma from "@/lib/db/prisma";
 export async function GET() {
   const session = await auth();
   if (!session?.valid) {
-    return {
-      success: false,
-      message: "ログイン情報がありません",
-    };
+    return Response.json(
+      {
+        success: false,
+        message: "ログイン情報がありません",
+      },
+      {
+        status: 401,
+      },
+    );
   }
 
   const count = await prisma.content.count({
