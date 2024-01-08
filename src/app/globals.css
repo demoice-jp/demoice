@@ -83,6 +83,14 @@
   input::placeholder {
     @apply opacity-40;
   }
+
+  textarea::placeholder {
+    @apply opacity-40;
+  }
+
+  pre {
+    @apply whitespace-pre-wrap;
+  }
 }
 
 @layer components {
@@ -99,7 +107,7 @@
   }
 
   .card {
-    @apply shadow dark:border bg-white dark:bg-gray-800 dark:border-gray-700;
+    @apply shadow bg-white dark:bg-black;
   }
 
   .btn-ghost {

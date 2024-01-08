@@ -33,11 +33,57 @@ const AccountSchema = z.object({
   avatar128: z.string().nullish(),
   avatar64: z.string().nullish(),
   avatar32: z.string().nullish(),
+  introduction: z
+    .string()
+    .nullish()
+    .transform((str) => (str && str.trim() ? str.trim() : null))
+    .refine((str) => {
+      if (!str) {
+        return true;
+      }
+      return str.length <= 150;
+    }, "150文字以内で入力してください"),
+  xUserName: z
+    .string()
+    .nullish()
+    .transform((str) => (str && str.trim() ? str.trim() : null))
+    .refine((str) => {
+      if (!str) {
+        return true;
+      }
+      return /^[a-zA-Z0-9_]{1,15}$/.test(str);
+    }, "Xのユーザー名を入力してください"),
+  webSite: z
+    .string()
+    .nullish()
+    .transform((str) => (str && str.trim() ? str.trim() : null))
+    .refine((str) => {
+      if (!str) {
+        return true;
+      }
+      return /^https?:\/\/[\w-]+(?:\.[\w-]+)+/.test(str);
+    }, "ウェブサイトのURLを入力してください")
+    .refine((str) => {
+      if (!str) {
+        return true;
+      }
+      return str.length <= 512;
+    }, "512文字以内で入力してください"),
   deleteAvatar: z.coerce.boolean().nullish(),
 });
 
-const CreateAccountSchema = AccountSchema;
-const UpdateAccountSchema = AccountSchema.omit({ gender: true, birthDate: true });
+const CreateAccountSchema = AccountSchema.pick({ userName: true, birthDate: true, gender: true, prefecture: true });
+const UpdateProfileSchema = AccountSchema.pick({
+  userName: true,
+  avatar128: true,
+  avatar64: true,
+  avatar32: true,
+  introduction: true,
+  xUserName: true,
+  webSite: true,
+  deleteAvatar: true,
+});
+const UpdateAccountSchema = AccountSchema.pick({ prefecture: true });
 
 export type CreateAccountState = {
   errors?: {
@@ -50,9 +96,19 @@ export type CreateAccountState = {
   success?: boolean;
 };
 
-export type UpdateAccountState = {
+export type UpdateProfileState = {
   errors?: {
     userName?: string[];
+    introduction?: string[];
+    xUserName?: string[];
+    webSite?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
+
+export type UpdateAccountState = {
+  errors?: {
     prefecture?: string[];
   };
   message?: string;
@@ -147,13 +203,13 @@ export async function createAccount(prevState: CreateAccountState, formData: For
   };
 }
 
-export async function updateAccount(prevState: UpdateAccountState, formData: FormData): Promise<UpdateAccountState> {
+export async function updateProfile(prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
   const session = await auth();
   if (!session?.valid || formData.get("id") !== session?.user?.accountId) {
     redirect("/auth/signin");
   }
 
-  const parsedInput = UpdateAccountSchema.safeParse(Object.fromEntries(formData));
+  const parsedInput = UpdateProfileSchema.safeParse(Object.fromEntries(formData));
   if (!parsedInput.success) {
     return {
       errors: parsedInput.error.flatten().fieldErrors,
@@ -198,7 +254,9 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
     await prisma.user.update({
       data: {
         userName: parsedInput.data.userName,
-        prefecture: parsedInput.data.prefecture,
+        introduction: parsedInput.data.introduction,
+        xUserName: parsedInput.data.xUserName,
+        webSite: parsedInput.data.webSite,
         updatedDate: new Date(),
         ...(avatarId
           ? {
@@ -218,7 +276,7 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
   } catch (e) {
     console.error(e);
     return {
-      message: "アカウントの更新に失敗しました。",
+      message: "プロフィールの更新に失敗しました。",
     };
   }
 
@@ -228,6 +286,42 @@ export async function updateAccount(prevState: UpdateAccountState, formData: For
     } catch (e) {
       console.error(e);
     }
+  }
+
+  return {
+    success: true,
+  };
+}
+
+export async function updateAccount(prevState: UpdateAccountState, formData: FormData): Promise<UpdateAccountState> {
+  const session = await auth();
+  if (!session?.valid || formData.get("id") !== session?.user?.accountId) {
+    redirect("/auth/signin");
+  }
+
+  const parsedInput = UpdateAccountSchema.safeParse(Object.fromEntries(formData));
+  if (!parsedInput.success) {
+    return {
+      errors: parsedInput.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await prisma.user.update({
+      data: {
+        prefecture: parsedInput.data.prefecture,
+        updatedDate: new Date(),
+      },
+      where: {
+        id: session.user.accountId,
+        deleted: false,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return {
+      message: "アカウントの更新に失敗しました。",
+    };
   }
 
   return {

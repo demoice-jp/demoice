@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccountActivity from "@/components/component/account-activity";
 import Breadcrumbs from "@/components/widget/breadcrumbs";
 import UserAvatar from "@/components/widget/user-avatar";
+import XIcon from "@/components/widget/x-icon";
 import { getUser } from "@/lib/data/user";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +35,24 @@ export default async function Page() {
             </div>
             <div className="px-2 md:p-3">
               <div className="font-bold text-lg">{user.userName}</div>
+              <pre className="text-sm break-all">{user.introduction}</pre>
+              <div className="mt-2 flex gap-3 items-center">
+                {user.xUserName && (
+                  <Link
+                    className="flex items-center"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://twitter.com/${user.xUserName}`}
+                  >
+                    <XIcon className="h-[1.2rem] inline fill-black dark:fill-gray-400" />
+                  </Link>
+                )}
+                {user.webSite && (
+                  <Link className="flex items-center" rel="noopener noreferrer" target="_blank" href={user.webSite}>
+                    <span className="material-symbols-outlined dark:text-gray-400">link</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
           <AccountActivity />

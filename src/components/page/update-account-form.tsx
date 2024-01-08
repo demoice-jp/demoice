@@ -16,7 +16,8 @@ import PrefectureSelect from "@/components/widget/prefecture-select";
 import SubmitButton from "@/components/widget/submit-button";
 import SubmitCancelButton from "@/components/widget/submit-cancel-button";
 import UserAvatar from "@/components/widget/user-avatar";
-import { deleteAccount, updateAccount } from "@/lib/action/account-action";
+import XIcon from "@/components/widget/x-icon";
+import { deleteAccount, updateAccount, updateProfile } from "@/lib/action/account-action";
 
 import "cropperjs/dist/cropper.css";
 
@@ -30,6 +31,194 @@ type UpdateAccountFormProp = {
 const SMALL_DUMMY_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
+  const [tab, setTab] = useState<"profile" | "account">("profile");
+
+  return (
+    <div className="card w-full">
+      <div className="pb-7 p-4 sm:p-7">
+        <h3>アカウント更新</h3>
+      </div>
+      <div role="tablist" className="tabs tabs-bordered">
+        <a
+          role="tab"
+          className={clsx("tab", tab === "profile" && "tab-active")}
+          onClick={() => {
+            setTab("profile");
+          }}
+        >
+          プロフィール
+        </a>
+        <a
+          role="tab"
+          className={clsx("tab", tab === "account" && "tab-active")}
+          onClick={() => {
+            setTab("account");
+          }}
+        >
+          アカウント
+        </a>
+      </div>
+
+      <div className="p-4 sm:p-7">
+        <div className={clsx(tab !== "profile" && "hidden")}>
+          <ProfileEdit user={user} />
+        </div>
+        <div className={clsx(tab !== "account" && "hidden")}>
+          <AccountEdit user={user} />
+          <DeleteAccount user={user} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileEdit({ user }: { user: User }) {
+  const [updateState, updateDispatch] = useFormState(updateProfile, {});
+  const { refresh } = useRouter();
+
+  useEffect(() => {
+    if (updateState.success) {
+      refresh();
+    }
+  }, [updateState, refresh]);
+
+  return (
+    <form action={updateDispatch}>
+      <span>プロフィールは他のユーザーに公開されます。</span>
+      <input type="hidden" name="id" value={user.id} />
+      <div className="grid pt-4 sm:grid-cols-12 gap-2 sm:gap-6">
+        <div className="sm:col-span-3">
+          <label htmlFor="user-name" className="label mt-1.5">
+            <span className="label-text">ユーザー名</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9">
+          <input
+            id="user-name"
+            aria-describedby="user-name-error"
+            type="text"
+            name="userName"
+            className="single-line-input w-full"
+            required
+            minLength={3}
+            maxLength={15}
+            defaultValue={user.userName}
+          />
+          <FormError id="user-name-error" messages={updateState.errors?.userName} />
+        </div>
+
+        <div className="sm:col-span-3">
+          <label className="label mt-1.5">
+            <span className="label-text">アバター</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9 self-center">
+          <AvatarEdit user={user} />
+        </div>
+
+        <div className="sm:col-span-3">
+          <label htmlFor="user-introduction" className="label mt-1.5">
+            <span className="label-text">自己紹介</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9">
+          <Introduction defaultValue={user.introduction || ""} />
+          <FormError id="user-introduction-error" messages={updateState.errors?.introduction} />
+        </div>
+
+        <div className="sm:col-span-3">
+          <label htmlFor="x-user-name" className="label mt-1.5">
+            <span className="label-text">
+              <XIcon className="h-[1rem] inline fill-black dark:fill-gray-400" /> ユーザー名
+            </span>
+          </label>
+        </div>
+        <div className="sm:col-span-9">
+          <input
+            id="x-user-name"
+            aria-describedby="x-user-name-error"
+            type="text"
+            name="xUserName"
+            className="single-line-input w-full"
+            minLength={1}
+            maxLength={15}
+            placeholder="Xのユーザー名を@なしで入力"
+            defaultValue={user.xUserName || ""}
+          />
+          <FormError id="x-user-name-error" messages={updateState.errors?.xUserName} />
+        </div>
+        <div className="sm:col-span-3">
+          <label htmlFor="web-site" className="label mt-1.5">
+            <span className="label-text">ウェブサイト</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9">
+          <input
+            id="web-site"
+            aria-describedby="web-site-error"
+            type="url"
+            name="webSite"
+            maxLength={512}
+            className="single-line-input w-full"
+            placeholder="https://example.com"
+            defaultValue={user.webSite || ""}
+          />
+          <FormError id="web-site-error" messages={updateState.errors?.webSite} />
+        </div>
+      </div>
+      {updateState.message && (
+        <div className="w-full flex justify-end">
+          <FormError messages={[updateState.message]} />
+        </div>
+      )}
+
+      <div className="mt-5 flex justify-end">
+        <SubmitButton>更新</SubmitButton>
+      </div>
+      {updateState.success && (
+        <div className="w-full flex justify-end">
+          <p className="mt-2 text-sm">プロフィールを更新しました。</p>
+        </div>
+      )}
+    </form>
+  );
+}
+
+function Introduction({ defaultValue }: { defaultValue: string }) {
+  const [value, setValue] = useState(defaultValue);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const onChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(e.target.value);
+    const element = e.target;
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight + 3}px`;
+  }, []);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight + 3}px`;
+    }
+  }, []);
+
+  return (
+    <div>
+      <textarea
+        id="user-introduction"
+        aria-describedby="user-introduction-error"
+        ref={textAreaRef}
+        name="introduction"
+        value={value}
+        className="textarea textarea-bordered min-h-[2.5rem] w-full resize-none leading-snug"
+        maxLength={150}
+        placeholder="150字以内で自己紹介を入力"
+        onChange={onChange}
+      />
+      <div className="light-text flex w-full justify-end">{value.length} / 150文字</div>
+    </div>
+  );
+}
+
+function AccountEdit({ user }: { user: User }) {
   const [updateState, updateDispatch] = useFormState(updateAccount, {});
   const { refresh } = useRouter();
 
@@ -40,99 +229,64 @@ export default function UpdateAccountForm({ user }: UpdateAccountFormProp) {
   }, [updateState, refresh]);
 
   return (
-    <div className="card w-full p-4 sm:p-7">
-      <div className="mb-8">
-        <h3>アカウント更新</h3>
-        <p className="light-text">以下の項目を入力して下さい。</p>
+    <form action={updateDispatch}>
+      <span>これらの情報は非公開情報ですが、統計に利用されます。</span>
+      <input type="hidden" name="id" value={user.id} />
+      <div className="pt-4 grid sm:grid-cols-12 gap-2 sm:gap-6">
+        <div className="sm:col-span-3">
+          <label className="label mt-1.5">
+            <span className="label-text">性別</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9 self-center">{user.gender === "male" ? "男性" : "女性"}</div>
+
+        <div className="sm:col-span-3">
+          <label htmlFor="birth-year" className="label mt-1.5">
+            <span className="label-text">生年月日</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9 self-center">{dayjs(user.birthDate).tz("UTC").format("YYYY年MM月DD日")}</div>
+
+        <div className="sm:col-span-3">
+          <label className="label mt-1.5" htmlFor="prefecture">
+            <span className="label-text">都道府県(住所)</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9">
+          <PrefectureSelect
+            id="prefecture-error"
+            aria-describedby="prefecture"
+            name="prefecture"
+            className="select select-bordered w-32"
+            required
+            defaultValue={user.prefecture}
+          />
+          <FormError id="prefecture-error" messages={updateState.errors?.prefecture} />
+        </div>
+        <div className="sm:col-span-3">
+          <label htmlFor="birth-year" className="label mt-1.5">
+            <span className="label-text">登録日</span>
+          </label>
+        </div>
+        <div className="sm:col-span-9 self-center">
+          {dayjs(user.createdDate).tz("Asia/Tokyo").format("YYYY年MM月DD日")}
+        </div>
       </div>
-      <form action={updateDispatch}>
-        <input type="hidden" name="id" value={user.id} />
-        <div className="grid sm:grid-cols-12 gap-2 sm:gap-6">
-          <div className="sm:col-span-3">
-            <label htmlFor="user-name" className="label mt-1.5">
-              <span className="label-text">ユーザー名</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <input
-              id="user-name"
-              aria-describedby="user-name-error"
-              type="text"
-              name="userName"
-              className="single-line-input w-full"
-              required
-              minLength={3}
-              maxLength={15}
-              defaultValue={user.userName}
-            />
-            <FormError id="user-name-error" messages={updateState.errors?.userName} />
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="label mt-1.5">
-              <span className="label-text">アバター</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9 self-center">
-            <AvatarEdit user={user} />
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="label mt-1.5">
-              <span className="label-text">性別</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9 self-center">{user.gender === "male" ? "男性" : "女性"}</div>
-
-          <div className="sm:col-span-3">
-            <label htmlFor="birth-year" className="label mt-1.5">
-              <span className="label-text">生年月日</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9 self-center">{dayjs(user.birthDate).tz("UTC").format("YYYY年MM月DD日")}</div>
-
-          <div className="sm:col-span-3">
-            <label className="label mt-1.5" htmlFor="prefecture">
-              <span className="label-text">都道府県(住所)</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9">
-            <PrefectureSelect
-              id="prefecture-error"
-              aria-describedby="prefecture"
-              name="prefecture"
-              className="select select-bordered w-32"
-              required
-              defaultValue={user.prefecture}
-            />
-            <FormError id="prefecture-error" messages={updateState.errors?.prefecture} />
-          </div>
-          <div className="sm:col-span-3">
-            <label htmlFor="birth-year" className="label mt-1.5">
-              <span className="label-text">登録日</span>
-            </label>
-          </div>
-          <div className="sm:col-span-9 self-center">
-            {dayjs(user.createdDate).tz("Asia/Tokyo").format("YYYY年MM月DD日")}
-          </div>
+      {updateState.message && (
+        <div className="w-full flex justify-end">
+          <FormError messages={[updateState.message]} />
         </div>
-        {updateState.message && (
-          <div className="w-full flex justify-end">
-            <FormError messages={[updateState.message]} />
-          </div>
-        )}
+      )}
 
-        <div className="mt-5 flex justify-end">
-          <SubmitButton>更新</SubmitButton>
+      <div className="mt-5 flex justify-end">
+        <SubmitButton>更新</SubmitButton>
+      </div>
+      {updateState.success && (
+        <div className="w-full flex justify-end">
+          <p className="mt-2 text-sm">アカウント情報を更新しました。</p>
         </div>
-        {updateState.success && (
-          <div className="w-full flex justify-end">
-            <p className="mt-2 text-sm">会員情報を更新しました。</p>
-          </div>
-        )}
-      </form>
-      <DeleteAccount user={user} />
-    </div>
+      )}
+    </form>
   );
 }
 

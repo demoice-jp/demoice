@@ -8,19 +8,22 @@ datasource db {
 }
 
 model User {
-  id          String       @id @db.Char(21)
-  userName    String       @unique @map("user_name") @db.VarChar(36) // ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
-  gender      Gender
-  birthDate   DateTime     @map("birth_date") @db.Date
-  prefecture  String       @db.Char(2)
-  avatar      String?      @db.Char(21)
-  createdDate DateTime     @default(now()) @map("created_date") @db.Timestamp(0)
-  updatedDate DateTime     @default(now()) @map("updated_date") @db.Timestamp(0)
-  deleted     Boolean
-  idProvider  ProviderId[]
-  content     Content[]
-  policyVote  PolicyVote[]
-  Comment     Comment[]
+  id           String       @id @db.Char(21)
+  userName     String       @unique @map("user_name") @db.VarChar(36) // ユーザー名の制限は15文字だが、削除時にユーザーIDに置き換えるため、36文字必要
+  gender       Gender
+  birthDate    DateTime     @map("birth_date") @db.Date
+  prefecture   String       @db.Char(2)
+  avatar       String?      @db.Char(21)
+  introduction String?      @db.VarChar(150)
+  xUserName    String?      @db.VarChar(15)
+  webSite      String?      @db.VarChar(512)
+  createdDate  DateTime     @default(now()) @map("created_date") @db.Timestamp(0)
+  updatedDate  DateTime     @default(now()) @map("updated_date") @db.Timestamp(0)
+  deleted      Boolean
+  idProvider   ProviderId[]
+  content      Content[]
+  policyVote   PolicyVote[]
+  Comment      Comment[]
 
   @@map("users")
 }
